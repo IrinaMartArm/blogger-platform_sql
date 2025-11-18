@@ -32,7 +32,6 @@ import { AuthService } from './auth/application/auth.service';
 import { DevicesRepository } from './security_devices/infrastructure/devices.repository';
 import { RefreshTokenUseCase } from './auth/application/commands/refresh-token.use-case';
 import { GetUsersHandler } from './user/infrastructure/query/get-users.query';
-// import { AuthQueryRepository } from './auth/infrastructure/auth.query-repository';
 import { GetMeHandler } from './auth/infrastructure/query/get-me.query';
 import { CreateUserUseCase } from './user/application/useCases/create-user.use-case';
 import { GetUserQueryUseCase } from './user/infrastructure/query/get-user.query';
