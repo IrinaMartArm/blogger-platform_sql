@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IsBoolean, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
-import { configValidationUtility } from '../setup/config-validation.utility';
+import { configValidationUtility } from '../../setup/config-validation.utility';
 
 export enum Environments {
   DEVELOPMENT = 'development',
@@ -50,16 +50,6 @@ export class CoreConfig {
   })
   env: string;
 
-  // @IsNotEmpty({
-  //   message: 'Set Env variable REFRESH_TOKEN_SECRET, dangerous for security!',
-  // })
-  // refreshTokenSecret: string;
-  //
-  // @IsNotEmpty({
-  //   message: 'Set Env variable ACCESS_TOKEN_SECRET, dangerous for security!',
-  // })
-  // accessTokenSecret: string;
-
   @IsBoolean({
     message:
       'Set Env variable IS_SWAGGER_ENABLED to enable/disable Swagger, example: true, available values: true, false',
@@ -80,10 +70,10 @@ export class CoreConfig {
 
   constructor(private configService: ConfigService<any, true>) {
     this.port = Number(this.configService.get('PORT'));
-    this.pgPort = Number(this.configService.get('PG_PORT'));
-    this.postgrePass = this.configService.get('POSTGRES_PASSWORD');
-    this.postgreUser = this.configService.get('POSTGRES_USER');
-    this.database = this.configService.get('DATABASE');
+    this.pgPort = Number(this.configService.get('DB_PORT'));
+    this.postgrePass = this.configService.get('DB_PASSWORD');
+    this.postgreUser = this.configService.get('DB_USERNAME');
+    this.database = this.configService.get('DB_NAME');
     this.env = this.configService.get('NODE_ENV');
     this.includeTestingModule = configValidationUtility.convertToBoolean(
       this.configService.get('INCLUDE_TESTING_MODULE'),
