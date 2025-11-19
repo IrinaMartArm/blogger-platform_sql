@@ -33,6 +33,7 @@ import { UpdatePostFromBlogUseCase } from './blogs/application/commands/update_p
 import { CreatePostFromBlogUseCase } from './blogs/application/commands/create_post_from_blog.use-case';
 import { GetBlogQueryHandler } from './blogs/application/query/get_blog.query';
 import { GetBlogsQueryHandler } from './blogs/application/query/get_blogs.query';
+import { GetBlogAllPostsQueryHandler } from './blogs/application/query/get_blog_all_posts.query';
 
 const useCases = [
   CreateBlogUseCase,
@@ -52,6 +53,7 @@ const useCases = [
 const query = [
   GetBlogQueryHandler,
   GetBlogsQueryHandler,
+  GetBlogAllPostsQueryHandler,
   GetPostQueryHandler,
   GetPostsQueryHandler,
   GetCommentQueryHandler,

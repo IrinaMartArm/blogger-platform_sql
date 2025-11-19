@@ -39,6 +39,7 @@ import { UpdatePostFromBlogCommand } from '../application/commands/update_post_f
 import { CreatePostFromBlogCommand } from '../application/commands/create_post_from_blog.use-case';
 import { GetBlogQuery } from '../application/query/get_blog.query';
 import { GetBlogsQuery } from '../application/query/get_blogs.query';
+import { GetBlogAllPostsQuery } from '../application/query/get_blog_all_posts.query';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -97,7 +98,7 @@ export class AdminBlogsController {
     @GetUserFromRequest() user?: UserContextDto,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const currentUserId = user && Number(user.currentUserId);
-    return this.blogsQueryRepository.getPosts(id, query, currentUserId);
+    return this.queryBus(new GetBlogAllPostsQuery(id, query, currentUserId));
   }
 
   @Post('/:id/posts')

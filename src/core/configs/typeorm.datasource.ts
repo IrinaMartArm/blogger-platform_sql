@@ -10,9 +10,6 @@ export default new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 
-  // entities: [path.join(process.cwd(), 'src/**/*.entity.ts')],
-  // migrations: [path.join(process.cwd(), 'migrations/*.ts')],
-
   entities: [__dirname + '../../**/*.entity.ts'],
   migrations: [process.cwd() + 'migrations/*.ts'],
   synchronize: false,

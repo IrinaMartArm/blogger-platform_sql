@@ -3,7 +3,7 @@ import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exception';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { Post } from '../../../posts/domain/post.entity';
+import { Post } from '../../../posts/entity/post.entity';
 import { CreatePostInputDto } from '../../../posts/api/input-dto/posts.input-dto';
 
 export class CreatePostFromBlogCommand {

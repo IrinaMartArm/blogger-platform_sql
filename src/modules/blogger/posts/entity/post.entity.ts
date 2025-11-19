@@ -1,10 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Blog } from '../../blogs/entity/blog.entity';
 import {
   CreatePostInputDto,
   UpdatePostInputDto,
 } from '../api/input-dto/posts.input-dto';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
+import { PostLike } from '../../post-likes/domain/post-likes.entity';
 
 @Entity('posts')
 export class Post extends BaseEntity {
@@ -19,6 +20,11 @@ export class Post extends BaseEntity {
 
   @Column({ type: 'int', nullable: false })
   blogId: number;
+
+  @OneToMany(() => PostLike, (like: PostLike) => like.post, {
+    onDelete: 'CASCADE',
+  })
+  likes: PostLike[];
 
   @ManyToOne(() => Blog, (blog) => blog.posts)
   @JoinColumn({ name: 'blogId' })

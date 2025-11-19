@@ -17,7 +17,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/objectId-validation.pipe';
 import { LikeInputDto } from '../../post-likes/dto';
 import { SetPostLikeStatusCommand } from '../../post-likes/applications/use-cases/set-post-like.use-case';
-import { CreateCommentCommand } from '../application/use-cases/createComment.use-case';
+import { CreateCommentCommand } from '../application/use-cases/create_comment.use-case';
 import { GetCommentsQuery } from '../../comments/application/query/get_comments.query';
 import { CommentViewDto, PostViewDto } from './view-dto/post.view-dto';
 import {

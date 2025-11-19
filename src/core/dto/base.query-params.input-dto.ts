@@ -14,7 +14,7 @@ export class BaseQueryParams {
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value && value.toUpperCase())
+  @Transform(({ value }) => (value ? value.toUpperCase() : 'ASC'))
   @IsIn(['ASC', 'DESC'])
   public readonly sortDirection?: 'ASC' | 'DESC' = 'DESC';
 }

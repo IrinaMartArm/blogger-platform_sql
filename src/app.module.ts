@@ -8,31 +8,19 @@ import { TestingModule } from './modules/testing/testing.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllHttpExceptionsFilter } from './core/filters/all-exceptions-filter';
 import { DomainHttpExceptionsFilter } from './core/filters/domain-exception-filter';
-import { CoreConfig } from './core/core.config';
 import { CoreModule } from './core/core.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CoreConfig } from './core/configs/core.config';
+import { getTypeOrmConfig } from './core/configs/typeorm.config';
 
 @Module({
   imports: [
     configModule,
     CoreModule,
-    // DatabaseModule,
     TypeOrmModule.forRootAsync({
       inject: [CoreConfig],
-      useFactory: (coreConfig: CoreConfig) => {
-        return {
-          type: 'postgres',
-          host: 'localhost',
-          port: coreConfig.pgPort,
-          username: coreConfig.postgreUser, // твой пользователь БД
-          password: coreConfig.postgrePass, // пароль от PostgreSQL
-          database: coreConfig.database, // название базы данных
-          autoLoadEntities: true,
-          synchronize: true, // ⚠️ автоматически создаёт таблицы
-          // logging: true,
-        };
-      },
+      useFactory: getTypeOrmConfig,
     }),
     ThrottlerModule.forRoot({
       throttlers: [
@@ -81,3 +69,7 @@ export class AppModule {
     });
   }
 }
+//TypeOrmModule.forRootAsync({
+//       inject: [CoreConfig],
+//       useFactory: getTypeOrmConfig,
+//     }),

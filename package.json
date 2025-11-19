@@ -20,7 +20,11 @@
     "test:e2e": "cross-env NODE_ENV=development jest --config ./test/jest-e2e.json",
     "local": "ssh -R 80:localhost:5001 nokey@localhost.run",
     "serveo": "ssh -R 80:localhost:5001 serveo.net",
-    "ngrok": "ngrok http 5001"
+    "ngrok": "ngrok http 5001",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d ./src/core/configs/typeorm.config.ts",
+    "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d ./src/core/configs/typeorm.config.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/core/configs/typeorm.config.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
@@ -40,6 +44,7 @@
     "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.2.3",
     "mongoose": "^8.19.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

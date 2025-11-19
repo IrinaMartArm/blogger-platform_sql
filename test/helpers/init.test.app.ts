@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { configModule } from '../../src/config-dynamic-module';
 import { CoreModule } from '../../src/core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CoreConfig } from '../../src/core/core.config';
+import { CoreConfig } from '../../src/core/configs/core.config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UserAccountsModule } from '../../src/modules/user-accounts/user-accounts.module';
 import { UsersTestManager } from './usersTestManager';
