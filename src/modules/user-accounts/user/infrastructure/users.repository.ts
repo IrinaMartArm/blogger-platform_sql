@@ -33,6 +33,6 @@ export class UsersRepository {
   }
 
   async delete(id: number): Promise<void> {
-    await this.usersRepository.softDelete({ id }); //тогда не надо в поиске указывать deletedAt: IsNull()
+    await this.usersRepository.softDelete({ id });
   }
 }

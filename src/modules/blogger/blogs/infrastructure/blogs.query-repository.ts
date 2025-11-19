@@ -1,104 +1,61 @@
 import { Injectable } from '@nestjs/common';
-import { BlogViewDto } from '../api/view-dto/blog.view-dto';
-import { Blog } from '../domain/blog.entity';
+import { Blog } from '../entity/blog.entity';
 import {
   BlogsSortBy,
   GetBlogsQueryParams,
 } from '../api/input-dto/get-blogs-query-params.input-dto';
-import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
-import { PostViewDto } from '../../posts/api/view-dto/post.view-dto';
-import { PostsQueryRepository } from '../../posts/infrastructure/posts-query.repository';
-import { PostsQueryParams } from '../../posts/api/input-dto/posts.input-dto';
-import { DomainException } from '../../../../core/exceptions/domain-exception';
-import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-
-export interface BlogWithCount extends Blog {
-  total_count: string;
-}
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(
-    @InjectDataSource() private dataSource: DataSource,
-    private postsQueryRepository: PostsQueryRepository,
+    @InjectRepository(Blog) private readonly blogRepo: Repository<Blog>,
   ) {}
 
-  async getBlogById(id: number): Promise<BlogViewDto> {
-    const result: Blog[] = await this.dataSource.query(
-      `
-    SELECT * FROM blogs WHERE id = $1 AND deleted_at IS NULL LIMIT 1`,
-      [id],
-    );
-
-    const blog = result[0];
-
-    if (!blog) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'No blog found.',
-      });
-    }
-
-    return BlogViewDto.mapToView(blog);
+  async getBlogById(id: number): Promise<Blog | null> {
+    return this.blogRepo
+      .createQueryBuilder('b')
+      .where('b.id = :id', { id })
+      .andWhere('b.deletedAt IS NULL')
+      .getOne();
   }
 
   async getBlogs(
     query: GetBlogsQueryParams,
-  ): Promise<PaginatedViewDto<BlogViewDto[]>> {
+  ): Promise<{ blogs: Blog[]; totalCount: number }> {
     const { pageSize, pageNumber, sortBy, sortDirection, searchNameTerm } =
       query;
     const dir = sortDirection?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
     const skip = (pageNumber - 1) * pageSize;
-    const params: any[] = [];
-    let paramIndex = 1;
 
-    const filter = ['deleted_at IS NULL'];
+    const qb = this.blogRepo.createQueryBuilder('b');
+
+    qb.where('b.deletedAt IS NULL');
 
     if (query.searchNameTerm) {
-      filter.push(`name ILIKE $${paramIndex++}`);
-      params.push(`%${searchNameTerm}%`);
+      qb.andWhere('b.name ILIKE :search', { search: `%${searchNameTerm}%` });
     }
 
-    const sortFieldMap: Record<BlogsSortBy, string> = {
-      [BlogsSortBy.CreatedAt]: 'created_at',
-      [BlogsSortBy.Name]: 'name',
-      [BlogsSortBy.Description]: 'description',
-      [BlogsSortBy.WebsiteUrl]: 'website_url',
-      [BlogsSortBy.IsMembership]: 'is_membership',
-    };
-    const validSortBy = sortBy ? sortFieldMap[sortBy] : 'created_at';
-    const orderByClause = `${validSortBy} ${dir}, id ${dir}`;
+    qb.orderBy(`b.${this.getSortField(sortBy)}`, dir);
+    qb.addOrderBy('b.id', dir);
 
-    params.push(pageSize, skip);
+    const [blogs, totalCount] = await qb
+      .take(pageSize)
+      .skip(skip)
+      .getManyAndCount();
 
-    const sql = `SELECT b.*,
-                COUNT(*) OVER() AS total_count
-                FROM blogs b
-                WHERE ${filter.join(' AND ')} 
-                ORDER BY ${orderByClause} 
-                LIMIT $${paramIndex++}
-                OFFSET $${paramIndex++}`;
-
-    const blogs: BlogWithCount[] = await this.dataSource.query(sql, params);
-
-    const items = blogs.map((blog) => BlogViewDto.mapToView(blog));
-    const totalCount = blogs.length > 0 ? Number(blogs[0].total_count) : 0;
-
-    return PaginatedViewDto.mapToView({
-      items,
-      page: query.pageNumber,
-      size: query.pageSize,
-      totalCount,
-    });
+    return { blogs, totalCount };
   }
 
-  async getPosts(
-    blogId: number,
-    query: PostsQueryParams,
-    currentUserId?: number,
-  ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    return this.postsQueryRepository.getPosts(query, currentUserId, blogId);
+  private getSortField(sortBy?: string): string {
+    const sortFieldMap: Record<BlogsSortBy, string> = {
+      [BlogsSortBy.CreatedAt]: 'createdAt',
+      [BlogsSortBy.Name]: 'name',
+      [BlogsSortBy.Description]: 'description',
+      [BlogsSortBy.WebsiteUrl]: 'websiteUrl',
+      [BlogsSortBy.IsMembership]: 'isMembership',
+    };
+    return sortFieldMap[sortBy as BlogsSortBy] ?? 'createdAt';
   }
 }

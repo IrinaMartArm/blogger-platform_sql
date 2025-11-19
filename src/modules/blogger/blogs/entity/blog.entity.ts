@@ -1,22 +1,13 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import {
   CreateBlogInputDto,
   UpdateBlogInputDto,
 } from '../api/input-dto/blogs.input-dto';
-import { Post } from '../../posts/domain/post.entity';
+import { Post } from '../../posts/entity/post.entity';
+import { BaseEntity } from '../../../../core/entities/baseEntity';
 
 @Entity('blogs')
-export class Blog {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Blog extends BaseEntity {
   @Column({ type: 'varchar', length: 15, nullable: false })
   name: string;
 
@@ -28,12 +19,6 @@ export class Blog {
 
   @Column()
   isMembership: boolean;
-
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'NOW()' })
-  createdAt: Date;
-
-  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
-  public deletedAt: Date | null;
 
   @OneToMany(() => Post, (post) => post.blog, { onDelete: 'CASCADE' })
   posts: Post[];

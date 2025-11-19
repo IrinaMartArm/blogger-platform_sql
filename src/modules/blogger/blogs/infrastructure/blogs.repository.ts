@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Blog } from '../domain/blog.entity';
+import { Blog } from '../entity/blog.entity';
 
 @Injectable()
 export class BlogsRepository {
@@ -13,7 +13,7 @@ export class BlogsRepository {
   }
 
   async findBlog(id: number): Promise<Blog | null> {
-    return await this.blogRepo.findOneBy({ id });
+    return this.blogRepo.findOneBy({ id });
   }
 
   async deleteBlog(id: number): Promise<void> {

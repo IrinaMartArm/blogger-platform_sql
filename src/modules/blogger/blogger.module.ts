@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { BlogsController } from './blogs/api/blogs.controller';
-import { BlogsService } from './blogs/application/blogs.service';
 import { BlogsQueryRepository } from './blogs/infrastructure/blogs.query-repository';
 import { BlogsRepository } from './blogs/infrastructure/blogs.repository';
 import { PostsController } from './posts/api/posts.controller';
@@ -16,7 +15,7 @@ import { DeleteCommentsUseCase } from './comments/application/use-cases/deleteCo
 import { UpdateCommentUseCase } from './comments/application/use-cases/updateComment.use-case';
 import { SetPostLikeStatusUseCase } from './post-likes/applications/use-cases/set-post-like.use-case';
 import { PostLikesRepository } from './post-likes/infrastructure/post-likes.repository';
-import { CreateCommentUseCase } from './posts/application/use-cases/createComment.use-case';
+import { CreateCommentUseCase } from './posts/application/use-cases/create_comment.use-case';
 import { SetCommentLikeUseCase } from './comment-likes/application/use-cases/set-comment-like.use-case';
 import { AdminPostsController } from './posts/api/admin.posts.controller';
 import { AdminBlogsController } from './blogs/api/admin.blogs.controller';
@@ -24,14 +23,16 @@ import { GetCommentsQueryHandler } from './comments/application/query/get_commen
 import { GetPostQueryHandler } from './posts/application/query/get_post.query';
 import { GetCommentQueryHandler } from './comments/application/query/get_comment.query';
 import { GetPostsQueryHandler } from './posts/application/query/get_posts.query';
-import { CreateBlogUseCase } from './blogs/application/commands/CreateBlogUseCase';
+import { CreateBlogUseCase } from './blogs/application/commands/create_blog.use-case';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Blog } from './blogs/domain/blog.entity';
-import { UpdateBlogUseCase } from './blogs/application/commands/UpdateBlogUseCase';
-import { DeleteBlogUseCase } from './blogs/application/commands/DeleteBlogUseCase';
-import { DeletePostFromBlogUseCase } from './blogs/application/commands/DeletePostFromBlogUseCase';
-import { UpdatePostFromBlogUseCase } from './blogs/application/commands/UpdatePostFromBlogUseCase';
-import { CreatePostFromBlogUseCase } from './blogs/application/commands/CreatePostFromBlogUseCase';
+import { Blog } from './blogs/entity/blog.entity';
+import { UpdateBlogUseCase } from './blogs/application/commands/update_blog.use-case';
+import { DeleteBlogUseCase } from './blogs/application/commands/delete_blog.use-case';
+import { DeletePostFromBlogUseCase } from './blogs/application/commands/delete_post_from_blog.use-case';
+import { UpdatePostFromBlogUseCase } from './blogs/application/commands/update_post_from_blog.use-case';
+import { CreatePostFromBlogUseCase } from './blogs/application/commands/create_post_from_blog.use-case';
+import { GetBlogQueryHandler } from './blogs/application/query/get_blog.query';
+import { GetBlogsQueryHandler } from './blogs/application/query/get_blogs.query';
 
 const useCases = [
   CreateBlogUseCase,
@@ -49,6 +50,8 @@ const useCases = [
 ];
 
 const query = [
+  GetBlogQueryHandler,
+  GetBlogsQueryHandler,
   GetPostQueryHandler,
   GetPostsQueryHandler,
   GetCommentQueryHandler,
@@ -65,7 +68,6 @@ const query = [
     CommentsController,
   ],
   providers: [
-    BlogsService,
     PostsService,
     BlogsQueryRepository,
     PostsQueryRepository,

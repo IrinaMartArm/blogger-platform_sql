@@ -31,12 +31,14 @@ import { ObjectIdValidationPipe } from '../../../../core/pipes/objectId-validati
 import { GetUserFromRequest } from '../../../user-accounts/decorators/param/getUserFromRequest';
 import { UserContextDto } from '../../../user-accounts/dto/user-context.dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from '../application/commands/CreateBlogUseCase';
-import { UpdateBlogCommand } from '../application/commands/UpdateBlogUseCase';
-import { DeleteBlogCommand } from '../application/commands/DeleteBlogUseCase';
-import { DeletePostFromBlogCommand } from '../application/commands/DeletePostFromBlogUseCase';
-import { UpdatePostFromBlogCommand } from '../application/commands/UpdatePostFromBlogUseCase';
-import { CreatePostFromBlogCommand } from '../application/commands/CreatePostFromBlogUseCase';
+import { CreateBlogCommand } from '../application/commands/create_blog.use-case';
+import { UpdateBlogCommand } from '../application/commands/update_blog.use-case';
+import { DeleteBlogCommand } from '../application/commands/delete_blog.use-case';
+import { DeletePostFromBlogCommand } from '../application/commands/delete_post_from_blog.use-case';
+import { UpdatePostFromBlogCommand } from '../application/commands/update_post_from_blog.use-case';
+import { CreatePostFromBlogCommand } from '../application/commands/create_post_from_blog.use-case';
+import { GetBlogQuery } from '../application/query/get_blog.query';
+import { GetBlogsQuery } from '../application/query/get_blogs.query';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -53,21 +55,21 @@ export class AdminBlogsController {
     const blogId: number = await this.commandBus.execute(
       new CreateBlogCommand(body),
     );
-    return this.blogsQueryRepository.getBlogById(blogId);
+    return this.queryBus.execute(new GetBlogQuery(blogId));
   }
 
   @Get()
   async getBlogs(
     @Query() query: GetBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogViewDto[]>> {
-    return this.blogsQueryRepository.getBlogs(query);
+    return this.queryBus.execute(new GetBlogsQuery(query));
   }
 
   @Get('/:id')
   async getBlog(
     @Param('id', ObjectIdValidationPipe) id: number,
   ): Promise<BlogViewDto> {
-    return this.blogsQueryRepository.getBlogById(id);
+    return this.queryBus.execute(new GetBlogQuery(id));
   }
 
   @Put('/:id')

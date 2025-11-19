@@ -1,23 +1,13 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Blog } from '../../blogs/domain/blog.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Blog } from '../../blogs/entity/blog.entity';
 import {
   CreatePostInputDto,
   UpdatePostInputDto,
 } from '../api/input-dto/posts.input-dto';
+import { BaseEntity } from '../../../../core/entities/baseEntity';
 
 @Entity('posts')
-export class Post {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Post extends BaseEntity {
   @Column({ type: 'varchar', length: 30, nullable: false })
   title: string;
 
@@ -29,12 +19,6 @@ export class Post {
 
   @Column({ type: 'int', nullable: false })
   blogId: number;
-
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'NOW()' })
-  createdAt: Date;
-
-  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
-  deletedAt: Date | null;
 
   @ManyToOne(() => Blog, (blog) => blog.posts)
   @JoinColumn({ name: 'blogId' })

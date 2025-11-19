@@ -31,13 +31,13 @@ import { ObjectIdValidationPipe } from '../../../../core/pipes/objectId-validati
 import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/optional-jwt-auth.guard';
 import { GetUserFromRequest } from '../../../user-accounts/decorators/param/getUserFromRequest';
 import { UserContextDto } from '../../../user-accounts/dto/user-context.dto';
-import { UpdateBlogCommand } from '../application/commands/UpdateBlogUseCase';
+import { UpdateBlogCommand } from '../application/commands/update_blog.use-case';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from '../application/commands/CreateBlogUseCase';
-import { DeleteBlogCommand } from '../application/commands/DeleteBlogUseCase';
-import { CreatePostFromBlogCommand } from '../application/commands/CreatePostFromBlogUseCase';
-import { UpdatePostFromBlogCommand } from '../application/commands/UpdatePostFromBlogUseCase';
-import { DeletePostFromBlogCommand } from '../application/commands/DeletePostFromBlogUseCase';
+import { CreateBlogCommand } from '../application/commands/create_blog.use-case';
+import { DeleteBlogCommand } from '../application/commands/delete_blog.use-case';
+import { CreatePostFromBlogCommand } from '../application/commands/create_post_from_blog.use-case';
+import { UpdatePostFromBlogCommand } from '../application/commands/update_post_from_blog.use-case';
+import { DeletePostFromBlogCommand } from '../application/commands/delete_post_from_blog.use-case';
 
 @Controller('blogs')
 export class BlogsController {
