@@ -5,6 +5,8 @@ import * as path from 'path';
 
 config({ path: path.resolve(__dirname, '../../env/.env.development') });
 
+console.log('PATSH', path.resolve('migrations'));
+
 export default new DataSource({
   type: 'postgres',
   host: 'localhost',

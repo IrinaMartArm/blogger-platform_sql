@@ -12,7 +12,7 @@ import { CoreModule } from './core/core.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoreConfig } from './core/configs/core.config';
-import { getTypeOrmConfig } from './core/configs/typeorm.config';
+import { getTypeOrmConfig } from './core/configs/typeorm.moduleOptions.config';
 
 @Module({
   imports: [
@@ -57,19 +57,9 @@ export class AppModule {
     }
     console.log('app module loaded', coreConfig.port);
 
-    // такой мудрёный способ мы используем, чтобы добавить к основным модулям необязательный модуль.
-    //@Module — это статический декоратор, он вычисляется на этапе компиляции, не во время запуска.
-    // А вот forRoot() — это динамический метод, который вызывается во время выполнения и может принимать аргументы.
-    // чтобы не обращаться в декораторе к переменной окружения через process.env в декораторе, потому что
-    // запуск декораторов происходит на этапе склейки всех модулей до старта жизненного цикла самого NestJS
-
     return Promise.resolve({
       module: AppModule,
       imports: dynamicImports,
     });
   }
 }
-//TypeOrmModule.forRootAsync({
-//       inject: [CoreConfig],
-//       useFactory: getTypeOrmConfig,
-//     }),

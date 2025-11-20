@@ -29,6 +29,11 @@ export class CoreConfig {
   pgPort: number;
 
   @IsNotEmpty({
+    message: 'Set Env variable POSTGRES_USER, example: localhost',
+  })
+  pgHost: string;
+
+  @IsNotEmpty({
     message: 'Set Env variable POSTGRES_USER, example: username',
   })
   postgreUser: string;
@@ -71,6 +76,7 @@ export class CoreConfig {
   constructor(private configService: ConfigService<any, true>) {
     this.port = Number(this.configService.get('PORT'));
     this.pgPort = Number(this.configService.get('DB_PORT'));
+    this.pgHost = this.configService.get('HOST');
     this.postgrePass = this.configService.get('DB_PASSWORD');
     this.postgreUser = this.configService.get('DB_USERNAME');
     this.database = this.configService.get('DB_NAME');

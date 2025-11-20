@@ -1,92 +1,70 @@
 import { Injectable } from '@nestjs/common';
-import { NewestLikes, PostViewDto } from '../api/view-dto/post.view-dto';
-import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import {
   PostsQueryParams,
   PostsSortBy,
 } from '../api/input-dto/posts.input-dto';
-import { DataSource, Repository } from 'typeorm';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from '../entity/post.entity';
-import { DomainException } from '../../../../core/exceptions/domain-exception';
-import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
-
-export interface PostsWithLikes extends Post {
-  blog_name: string;
-  likes_count: string;
-  dislikes_count: string;
-  total_count: string;
-  my_status: string;
-  newest_likes: NewestLikes[];
-}
+import { PostWithLikes, RawPostRecord } from '../api/view-dto/post.view-dto';
 
 @Injectable()
 export class PostsQueryRepository {
-  constructor(
-    @InjectRepository(Post) private postsRepo: Repository<Post>,
-    @InjectDataSource() private dataSource: DataSource,
-  ) {}
+  constructor(@InjectRepository(Post) private postsRepo: Repository<Post>) {}
 
-  async findPost(postId: number, userId?: number): Promise<PostViewDto> {
-    const posts: PostsWithLikes[] = await this.dataSource.query(
-      `
-    WITH post_likes_aggregated AS (
-      SELECT 
-        pl.post_id,
-        COUNT(*) FILTER (WHERE pl.status = 'Like') AS likes_count,
-        COUNT(*) FILTER (WHERE pl.status = 'Dislike') AS dislikes_count,
-        COALESCE((
-          SELECT status 
-          FROM post_likes pl2 
-          WHERE pl2.post_id = pl.post_id AND pl2.user_id = $2
-        ), 'None') AS my_status,
-        COALESCE((
-          SELECT json_agg(
-            json_build_object(
-              'addedAt', pl3.added_at,
-              'userId', pl3.user_id::text,
-              'login', u.login
-            )
-                 ORDER BY pl3.added_at DESC  -- ГАРАНТИЯ ПОРЯДКА!
-          )
-          FROM (
-            SELECT added_at, user_id
-            FROM post_likes 
-            WHERE post_id = pl.post_id AND status = 'Like'
-            ORDER BY added_at DESC
-            LIMIT 3
-          ) pl3
-          JOIN users u ON u.id = pl3.user_id
-        ), '[]'::json) AS newest_likes
-      FROM post_likes pl
-      WHERE pl.post_id = $1
-      GROUP BY pl.post_id
-    )
-    
-    SELECT 
-      p.*,
-      b.name AS blog_name,
-      COALESCE(pla.likes_count, 0) AS likes_count,
-      COALESCE(pla.dislikes_count, 0) AS dislikes_count,
-      COALESCE(pla.my_status, 'None') AS my_status,
-      COALESCE(pla.newest_likes, '[]'::json) AS newest_likes
-    FROM posts p
-    JOIN blogs b ON p.blog_id = b.id
-    LEFT JOIN post_likes_aggregated pla ON pla.post_id = p.id
-    WHERE p.id = $1 AND p.deleted_at IS NULL
-    LIMIT 1
-    `,
-      [postId, userId || null],
+  async findPost(
+    postId: number,
+    userId?: number,
+  ): Promise<{ post: PostWithLikes; raw: RawPostRecord }> {
+    const qb = this.postsRepo
+      .createQueryBuilder('p')
+      .leftJoin('p.blog', 'b')
+      .addSelect('b.name', 'blogName')
+      .where('p.deletedAt IS NULL')
+      .andWhere('p.id = :postId', { postId });
+
+    qb.loadRelationCountAndMap('p.likesCount', 'p.likes', 'like', (qb) =>
+      qb.where('like.status = :status', { status: 'Like' }),
+    ); //маппит результат прямо в сущность (Post), а не в raw.
+
+    qb.loadRelationCountAndMap('p.dislikesCount', 'p.likes', 'like', (qb) =>
+      qb.where('like.status = :status', { status: 'Dislike' }),
     );
 
-    if (posts.length === 0) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Post not found',
-      });
-    }
+    //addSelect маппит результат в raw.
+    qb.addSelect((qb) => {
+      return qb
+        .select('pl.status')
+        .from('post_likes', 'pl')
+        .where('pl.postId = p.id')
+        .andWhere('pl.userId = :userId')
+        .limit(1);
+    }, 'myStatus').setParameter('userId', userId ?? -1); //для примера
 
-    return PostViewDto.mapToView(posts[0]);
+    qb.addSelect(
+      `COALESCE((
+      SELECT json_agg(likes_info)
+      FROM (
+        SELECT 
+          pl."userId"::text,
+          u.login,
+          pl."createdAt" as "addedAt"
+        FROM post_likes pl
+        LEFT JOIN users u ON u.id = pl."userId"
+        WHERE pl."postId" = p.id 
+          AND pl.status = 'Like'
+        ORDER BY pl."createdAt" DESC, pl.id DESC
+        LIMIT 3
+      ) likes_info
+    ), '[]'::json)`,
+      'newestLikes',
+    );
+
+    const { entities, raw } = await qb.getRawAndEntities();
+
+    console.log('findPost', { entities, raw });
+
+    return { raw: raw[0] as RawPostRecord, post: entities[0] as PostWithLikes };
   }
 
   private getSearchField(sortBy?: PostsSortBy): string {
@@ -100,63 +78,82 @@ export class PostsQueryRepository {
     return fieldMap[sortBy as PostsSortBy] ?? 'createdAt';
   }
 
-  async getPosts(query: PostsQueryParams, userId?: number, blogId?: number) {
+  async getPosts(
+    query: PostsQueryParams,
+    userId?: number,
+    blogId?: number,
+  ): Promise<{
+    typedRaw: RawPostRecord[];
+    posts: PostWithLikes[];
+    totalCount: number;
+  }> {
     const { sortDirection, sortBy, pageNumber, pageSize } = query;
     const skip = (pageNumber - 1) * pageSize;
     const dir = sortDirection === 'DESC' ? 'DESC' : 'ASC';
 
     const qb = this.postsRepo
       .createQueryBuilder('p')
-      .leftJoinAndSelect('posts.blog', 'b')
+      .leftJoin('p.blog', 'b')
+      .addSelect('b.name', 'blogName')
       .where('p.deletedAt IS NULL');
 
     if (blogId) {
       qb.andWhere('p.blogId = :blogId', { blogId });
     }
 
-    qb.loadRelationCountAndMap('post.likesCount', 'post.likes', 'like', (qb) =>
-      qb.where('like.status = :status', { status: 'Like' }),
+    qb.loadRelationCountAndMap('p.likesCount', 'p.likes', 'like', (qb) =>
+      qb.where('like.status = :likeStatus', { likeStatus: 'Like' }),
     );
 
-    qb.loadRelationCountAndMap(
-      'post.dislikesCount',
-      'post.likes',
-      'like',
-      (qb) => qb.where('like.status = :status', { status: 'Dislike' }),
+    qb.loadRelationCountAndMap('p.dislikesCount', 'p.likes', 'dislike', (qb) =>
+      qb.where('dislike.status = :dislikeStatus', { dislikeStatus: 'Dislike' }),
     );
 
-    qb.loadRelationCountAndMap('post.myStatus', 'post.likes', 'like', (qb) =>
-      qb.where('like.userId = :userId', { userId: userId ?? -1 }),
-    )
-      .addSelect((subQb) => {
-        return subQb
-          .select('COALESCE(myLike.status, :none)', 'myStatus')
-          .from('post-likes', 'pl')
-          .where('pl.postId = post.id')
-          .andWhere('pl.userId = :userId', { userId: userId ?? -1 })
-          .limit(1);
-      }, 'myStatus')
-      .setParameter('none', 'None');
+    qb.addSelect(
+      `COALESCE((
+      SELECT pl.status 
+      FROM post_likes pl 
+      WHERE pl."postId" = p.id 
+        AND pl."userId" = :userId
+      LIMIT 1
+    ), 'None')`,
+      'myStatus',
+    ).setParameter('userId', userId ?? -1);
 
-    qb.leftJoinAndMapMany(
-      'post.newsLikes',
-      'post.likes',
-      'newsLikes',
-      'newsLikes.status = :status',
-      { status: 'Like' },
-    )
-      .addSelect(['newestLike.addedAt', 'newestLike.userId'])
-      .leftJoinAndSelect('newestLike.user', 'likedUser')
-      .addOrderBy('newestLike.addedAt', 'DESC')
-      .take(3);
+    qb.addSelect(
+      `COALESCE((
+      SELECT json_agg(likes_info)
+      FROM (
+        SELECT 
+          pl."userId"::text,
+          u.login,
+          pl."createdAt" as "addedAt"
+        FROM post_likes pl
+        LEFT JOIN users u ON u.id = pl."userId"
+        WHERE pl."postId" = p.id 
+          AND pl.status = 'Like'
+        ORDER BY pl."createdAt" DESC, pl.id DESC
+        LIMIT 3
+      ) likes_info
+    ), '[]'::json)`,
+      'newestLikes',
+    );
 
     const sortField = this.getSearchField(sortBy);
     qb.orderBy(`p.${sortField}`, dir);
     qb.addOrderBy('p.id', dir);
     qb.skip(skip);
-    qb.take(pageNumber);
+    qb.take(pageSize);
 
-    const [posts, totalCount] = await qb.getManyAndCount();
-    return { posts, totalCount };
+    const { entities, raw } = await qb.getRawAndEntities();
+    const totalCount = await qb.getCount();
+
+    console.log('getPosts', { entities, raw });
+
+    return {
+      typedRaw: raw as RawPostRecord[],
+      posts: entities as PostWithLikes[],
+      totalCount,
+    };
   }
 }

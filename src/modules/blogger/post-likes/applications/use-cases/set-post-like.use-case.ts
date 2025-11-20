@@ -23,7 +23,7 @@ export class SetPostLikeStatusUseCase
   ) {}
   async execute({ postId, status, userId }: SetPostLikeStatusCommand) {
     const repo = this.postLikesRepository;
-    const post = await this.postsRepository.getPost(postId);
+    const post = await this.postsRepository.findPost(postId);
 
     if (!post) {
       throw new DomainException({

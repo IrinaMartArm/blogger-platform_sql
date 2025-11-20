@@ -6,6 +6,7 @@ import {
 } from '../api/input-dto/posts.input-dto';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
 import { PostLike } from '../../post-likes/domain/post-likes.entity';
+import { Comment } from '../../comments/domain/comment.entity';
 
 @Entity('posts')
 export class Post extends BaseEntity {
@@ -29,6 +30,9 @@ export class Post extends BaseEntity {
   @ManyToOne(() => Blog, (blog) => blog.posts)
   @JoinColumn({ name: 'blogId' })
   blog: Blog;
+
+  @OneToMany(() => Comment, (c: Comment) => c.post, { onDelete: 'CASCADE' })
+  comments: Comment[];
 
   static create(blogId: number, dto: CreatePostInputDto) {
     const post = new Post();

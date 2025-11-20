@@ -9,9 +9,9 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 
 export class GetBlogAllPostsQuery {
   constructor(
-    public readonly id: number,
     public readonly query: PostsQueryParams,
     public readonly currentUserId?: number,
+    public readonly blogId?: number,
   ) {}
 }
 
@@ -25,26 +25,28 @@ export class GetBlogAllPostsQueryHandler
   ) {}
 
   async execute({
-    id,
     query,
     currentUserId,
+    blogId,
   }: GetBlogAllPostsQuery): Promise<PaginatedViewDto<PostViewDto[]>> {
     const { pageNumber, pageSize } = query;
-    const blog = await this.blogsRepository.findBlog(id);
-    if (!blog) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'Blog not found',
-      });
+
+    if (blogId) {
+      const blog = await this.blogsRepository.findBlog(blogId);
+      if (!blog) {
+        throw new DomainException({
+          code: DomainExceptionCode.NotFound,
+          message: 'Blog not found',
+        });
+      }
     }
-    const { posts, totalCount } = await this.postsQueryRepository.getPosts(
-      query,
-      currentUserId,
+
+    const { posts, totalCount, typedRaw } =
+      await this.postsQueryRepository.getPosts(query, currentUserId, blogId);
+
+    const items: PostViewDto[] = posts.map((post, i) =>
+      PostViewDto.mapToView(post, typedRaw[i]),
     );
-
-    console.log('posts', posts);
-
-    const items = posts.map((post) => PostViewDto.mapToView(post));
 
     return PaginatedViewDto.mapToView({
       items,

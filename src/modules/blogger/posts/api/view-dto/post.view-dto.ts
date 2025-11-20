@@ -1,5 +1,4 @@
 import { Post } from '../../entity/post.entity';
-import { PostsWithLikes } from '../../infrastructure/posts-query.repository';
 
 export class PostViewDto {
   id: string;
@@ -11,25 +10,30 @@ export class PostViewDto {
   createdAt: string;
   extendedLikesInfo: ExtendedLikesInfo;
 
-  static mapToView(post: PostsWithLikes): PostViewDto {
+  static mapToView(post: PostWithLikes, raw: RawPostRecord): PostViewDto {
     const dto = new PostViewDto();
     dto.id = post.id.toString();
     dto.title = post.title;
-    dto.shortDescription = post.short_description;
+    dto.shortDescription = post.shortDescription;
     dto.content = post.content;
-    dto.blogId = post.blog_id.toString();
-    dto.blogName = post.blog_name;
-    dto.createdAt = post.created_at;
+    dto.blogId = post.blogId.toString();
+    dto.blogName = raw.blogName;
+    dto.createdAt = post.createdAt.toISOString();
     dto.extendedLikesInfo = {
-      likesCount: Number(post.likes_count),
-      dislikesCount: Number(post.dislikes_count),
-      myStatus: post.my_status,
-      newestLikes: post.newest_likes,
+      likesCount: Number(post.likesCount) || 0,
+      dislikesCount: Number(post.dislikesCount) || 0,
+      myStatus: raw.myStatus || 'None',
+      newestLikes: raw.newestLikes ?? [],
     };
 
     return dto;
   }
 }
+
+export type PostWithLikes = Post & {
+  likesCount: string;
+  dislikesCount: string;
+};
 
 export type NewestLikes = {
   addedAt: string;
@@ -37,11 +41,11 @@ export type NewestLikes = {
   login: string;
 };
 
-export type NewestLikesDb = {
-  addedAt: Date;
-  userId: string;
-  login: string;
-};
+export interface RawPostRecord {
+  blogName: string;
+  myStatus: 'Like' | 'Dislike' | 'None';
+  newestLikes: NewestLikes[];
+}
 
 export class ExtendedLikesInfo {
   likesCount: number;

@@ -11,7 +11,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsQueryRepository } from '../infrastructure/blogs.query-repository';
 import {
   CreateBlogInputDto,
   UpdateBlogInputDto,
@@ -25,7 +24,6 @@ import {
   PostsQueryParams,
   UpdatePostInputDto,
 } from '../../posts/api/input-dto/posts.input-dto';
-import { PostsQueryRepository } from '../../posts/infrastructure/posts-query.repository';
 import { BasicAuthGuard } from '../../../user-accounts/auth/guards/basic/basic-auth.guard';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/objectId-validation.pipe';
 import { GetUserFromRequest } from '../../../user-accounts/decorators/param/getUserFromRequest';
@@ -40,6 +38,7 @@ import { CreatePostFromBlogCommand } from '../application/commands/create_post_f
 import { GetBlogQuery } from '../application/query/get_blog.query';
 import { GetBlogsQuery } from '../application/query/get_blogs.query';
 import { GetBlogAllPostsQuery } from '../application/query/get_blog_all_posts.query';
+import { GetPostQuery } from '../../posts/application/query/get_post.query';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -47,8 +46,6 @@ export class AdminBlogsController {
   constructor(
     private commandBus: CommandBus,
     private queryBus: QueryBus,
-    private blogsQueryRepository: BlogsQueryRepository,
-    private postsQueryRepository: PostsQueryRepository,
   ) {}
 
   @Post()
@@ -98,7 +95,9 @@ export class AdminBlogsController {
     @GetUserFromRequest() user?: UserContextDto,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const currentUserId = user && Number(user.currentUserId);
-    return this.queryBus(new GetBlogAllPostsQuery(id, query, currentUserId));
+    return this.queryBus.execute(
+      new GetBlogAllPostsQuery(query, currentUserId, id),
+    );
   }
 
   @Post('/:id/posts')
@@ -109,7 +108,7 @@ export class AdminBlogsController {
     const postId: number = await this.commandBus.execute(
       new CreatePostFromBlogCommand(id, body),
     );
-    return this.postsQueryRepository.findPost(postId, id);
+    return this.queryBus.execute(new GetPostQuery(postId));
   }
 
   @Put('/:id/posts/:postId')

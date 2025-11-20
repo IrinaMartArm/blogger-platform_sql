@@ -22,7 +22,6 @@ import { AdminBlogsController } from './blogs/api/admin.blogs.controller';
 import { GetCommentsQueryHandler } from './comments/application/query/get_comments.query';
 import { GetPostQueryHandler } from './posts/application/query/get_post.query';
 import { GetCommentQueryHandler } from './comments/application/query/get_comment.query';
-import { GetPostsQueryHandler } from './posts/application/query/get_posts.query';
 import { CreateBlogUseCase } from './blogs/application/commands/create_blog.use-case';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './blogs/entity/blog.entity';
@@ -34,6 +33,8 @@ import { CreatePostFromBlogUseCase } from './blogs/application/commands/create_p
 import { GetBlogQueryHandler } from './blogs/application/query/get_blog.query';
 import { GetBlogsQueryHandler } from './blogs/application/query/get_blogs.query';
 import { GetBlogAllPostsQueryHandler } from './blogs/application/query/get_blog_all_posts.query';
+import { Post } from './posts/entity/post.entity';
+import { PostLike } from './post-likes/domain/post-likes.entity';
 
 const useCases = [
   CreateBlogUseCase,
@@ -55,13 +56,15 @@ const query = [
   GetBlogsQueryHandler,
   GetBlogAllPostsQueryHandler,
   GetPostQueryHandler,
-  GetPostsQueryHandler,
   GetCommentQueryHandler,
   GetCommentsQueryHandler,
 ];
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Blog]), UserAccountsModule],
+  imports: [
+    TypeOrmModule.forFeature([Blog, Post, PostLike]),
+    UserAccountsModule,
+  ],
   controllers: [
     AdminBlogsController,
     BlogsController,
@@ -77,6 +80,7 @@ const query = [
     CommentsQueryRepository,
     CommentsRepository,
     CommentLikesRepository,
+    PostsQueryRepository,
     BlogsRepository,
     PostsRepository,
     ...useCases,

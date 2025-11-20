@@ -31,8 +31,8 @@ import { GetCommentsQueryParams } from './input-dto/get-comments-query-params.in
 import { UpdateCommentCommand } from '../application/use-cases/update_comment.use-case';
 import { GetCommentQuery } from '../../comments/application/query/get_comment.query';
 import { GetPostQuery } from '../application/query/get_post.query';
-import { GetPostsQuery } from '../application/query/get_posts.query';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/optional-jwt-auth.guard';
+import { GetBlogAllPostsQuery } from '../../blogs/application/query/get_blog_all_posts.query';
 
 @Controller('posts')
 export class PostsController {
@@ -58,7 +58,7 @@ export class PostsController {
     @GetUserFromRequest() user?: UserContextDto,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const userId = user && Number(user.currentUserId);
-    return this.queryBus.execute(new GetPostsQuery(query, userId));
+    return this.queryBus.execute(new GetBlogAllPostsQuery(query, userId));
   }
 
   @Put('/:id')
