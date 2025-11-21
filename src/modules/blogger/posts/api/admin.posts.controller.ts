@@ -32,13 +32,6 @@ export class AdminPostsController {
     return this.queryBus.execute(new GetPostQuery(id));
   }
 
-  // @Get()
-  // async getPosts(
-  //   @Query() query: PostsQueryParams,
-  // ): Promise<PaginatedViewDto<PostViewDto[]>> {
-  //   return this.postsQueryRepository.getPosts(query);
-  // }
-
   @Put(':id/like-status')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)

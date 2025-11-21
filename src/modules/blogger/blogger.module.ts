@@ -3,7 +3,6 @@ import { BlogsController } from './blogs/api/blogs.controller';
 import { BlogsQueryRepository } from './blogs/infrastructure/blogs.query-repository';
 import { BlogsRepository } from './blogs/infrastructure/blogs.repository';
 import { PostsController } from './posts/api/posts.controller';
-import { PostsService } from './posts/application/posts.service';
 import { PostsRepository } from './posts/infrastructure/posts.repository';
 import { PostsQueryRepository } from './posts/infrastructure/posts-query.repository';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
@@ -28,27 +27,27 @@ import { Blog } from './blogs/entity/blog.entity';
 import { UpdateBlogUseCase } from './blogs/application/commands/update_blog.use-case';
 import { DeleteBlogUseCase } from './blogs/application/commands/delete_blog.use-case';
 import { DeletePostFromBlogUseCase } from './blogs/application/commands/delete_post_from_blog.use-case';
-import { UpdatePostFromBlogUseCase } from './blogs/application/commands/update_post_from_blog.use-case';
+import { UpdatePostUseCase } from './blogs/application/commands/update_post.use-case';
 import { CreatePostFromBlogUseCase } from './blogs/application/commands/create_post_from_blog.use-case';
 import { GetBlogQueryHandler } from './blogs/application/query/get_blog.query';
 import { GetBlogsQueryHandler } from './blogs/application/query/get_blogs.query';
 import { GetBlogAllPostsQueryHandler } from './blogs/application/query/get_blog_all_posts.query';
 import { Post } from './posts/entity/post.entity';
 import { PostLike } from './post-likes/domain/post-likes.entity';
+import { Comment } from './comments/entity/comment.entity';
 
 const useCases = [
   CreateBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogUseCase,
   CreatePostFromBlogUseCase,
-  UpdatePostFromBlogUseCase,
+  UpdatePostUseCase,
   DeletePostFromBlogUseCase,
-  DeleteCommentsUseCase,
-  UpdateCommentUseCase,
   SetPostLikeStatusUseCase,
   CreateCommentUseCase,
-  SetCommentLikeUseCase,
   UpdateCommentUseCase,
+  DeleteCommentsUseCase,
+  SetCommentLikeUseCase,
 ];
 
 const query = [
@@ -62,7 +61,7 @@ const query = [
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Blog, Post, PostLike]),
+    TypeOrmModule.forFeature([Blog, Post, PostLike, Comment]),
     UserAccountsModule,
   ],
   controllers: [
@@ -73,7 +72,6 @@ const query = [
     CommentsController,
   ],
   providers: [
-    PostsService,
     BlogsQueryRepository,
     PostsQueryRepository,
     PostLikesRepository,

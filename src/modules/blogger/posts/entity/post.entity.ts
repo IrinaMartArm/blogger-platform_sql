@@ -6,7 +6,7 @@ import {
 } from '../api/input-dto/posts.input-dto';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
 import { PostLike } from '../../post-likes/domain/post-likes.entity';
-import { Comment } from '../../comments/domain/comment.entity';
+import { Comment } from '../../comments/entity/comment.entity';
 
 @Entity('posts')
 export class Post extends BaseEntity {

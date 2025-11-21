@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
 import { Post } from '../../posts/entity/post.entity';
 import { User } from '../../../user-accounts/user/entity/user.entity';
+import { CreateCommentInputDto } from '../../posts/api/input-dto/posts.input-dto';
 
 @Entity('comments')
 export class Comment extends BaseEntity {
@@ -21,4 +22,17 @@ export class Comment extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'userId' })
   user: User;
+
+  static create(userId: number, postId: number, dto: CreateCommentInputDto) {
+    const comment = new Comment();
+    comment.content = dto.content;
+    comment.userId = userId;
+    comment.postId = postId;
+
+    return comment;
+  }
+
+  update(content: string) {
+    this.content = content;
+  }
 }

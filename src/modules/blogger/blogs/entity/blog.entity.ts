@@ -8,7 +8,7 @@ import { BaseEntity } from '../../../../core/entities/baseEntity';
 
 @Entity('blogs')
 export class Blog extends BaseEntity {
-  @Column({ type: 'varchar', length: 15, nullable: false })
+  @Column({ type: 'varchar', length: 15, nullable: false, collation: 'C' })
   name: string;
 
   @Column({ type: 'varchar', length: 500, nullable: false })

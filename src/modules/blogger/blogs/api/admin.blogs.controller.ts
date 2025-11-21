@@ -33,7 +33,7 @@ import { CreateBlogCommand } from '../application/commands/create_blog.use-case'
 import { UpdateBlogCommand } from '../application/commands/update_blog.use-case';
 import { DeleteBlogCommand } from '../application/commands/delete_blog.use-case';
 import { DeletePostFromBlogCommand } from '../application/commands/delete_post_from_blog.use-case';
-import { UpdatePostFromBlogCommand } from '../application/commands/update_post_from_blog.use-case';
+import { UpdatePostCommand } from '../application/commands/update_post.use-case';
 import { CreatePostFromBlogCommand } from '../application/commands/create_post_from_blog.use-case';
 import { GetBlogQuery } from '../application/query/get_blog.query';
 import { GetBlogsQuery } from '../application/query/get_blogs.query';
@@ -118,9 +118,7 @@ export class AdminBlogsController {
     @Param('postId', ObjectIdValidationPipe) postId: number,
     @Body() body: UpdatePostInputDto,
   ): Promise<void> {
-    return this.commandBus.execute(
-      new UpdatePostFromBlogCommand(id, postId, body),
-    );
+    return this.commandBus.execute(new UpdatePostCommand(postId, body, id));
   }
 
   @Delete('/:id/posts/:postId')
@@ -129,6 +127,9 @@ export class AdminBlogsController {
     @Param('id', ObjectIdValidationPipe) id: number,
     @Param('postId', ObjectIdValidationPipe) postId: number,
   ): Promise<void> {
-    return this.commandBus.execute(new DeletePostFromBlogCommand(id, postId));
+    console.log('deletePost 1');
+    await this.commandBus.execute(new DeletePostFromBlogCommand(id, postId));
+    console.log('DELETED');
+    return;
   }
 }

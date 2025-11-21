@@ -22,6 +22,7 @@ export class DeletePostFromBlogUseCase
 
   async execute({ id, postId }: DeletePostFromBlogCommand): Promise<void> {
     const blog = await this.blogsRepository.findBlog(id);
+
     if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,

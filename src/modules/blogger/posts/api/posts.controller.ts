@@ -28,11 +28,11 @@ import {
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { CommentsViewDto } from '../../comments/api/view-dto/comments.view-dto';
 import { GetCommentsQueryParams } from './input-dto/get-comments-query-params.input-dto';
-import { UpdateCommentCommand } from '../application/use-cases/update_comment.use-case';
 import { GetCommentQuery } from '../../comments/application/query/get_comment.query';
 import { GetPostQuery } from '../application/query/get_post.query';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/optional-jwt-auth.guard';
 import { GetBlogAllPostsQuery } from '../../blogs/application/query/get_blog_all_posts.query';
+import { UpdatePostCommand } from '../../blogs/application/commands/update_post.use-case';
 
 @Controller('posts')
 export class PostsController {
@@ -68,7 +68,7 @@ export class PostsController {
     @Param('id', ObjectIdValidationPipe) id: number,
     @Body() post: UpdatePostInputDto,
   ): Promise<void> {
-    return this.commandBus.execute(new UpdateCommentCommand(id, post));
+    return this.commandBus.execute(new UpdatePostCommand(id, post));
   }
 
   @Get('/:id/comments')

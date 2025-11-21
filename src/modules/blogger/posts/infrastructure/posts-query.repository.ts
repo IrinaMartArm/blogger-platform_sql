@@ -15,7 +15,7 @@ export class PostsQueryRepository {
   async findPost(
     postId: number,
     userId?: number,
-  ): Promise<{ post: PostWithLikes; raw: RawPostRecord }> {
+  ): Promise<{ post?: PostWithLikes; raw?: RawPostRecord }> {
     const qb = this.postsRepo
       .createQueryBuilder('p')
       .leftJoin('p.blog', 'b')
@@ -62,20 +62,18 @@ export class PostsQueryRepository {
 
     const { entities, raw } = await qb.getRawAndEntities();
 
-    console.log('findPost', { entities, raw });
-
     return { raw: raw[0] as RawPostRecord, post: entities[0] as PostWithLikes };
   }
 
   private getSearchField(sortBy?: PostsSortBy): string {
     const fieldMap: Record<PostsSortBy, string> = {
-      [PostsSortBy.CreatedAt]: 'createdAt',
-      [PostsSortBy.Title]: 'title',
-      [PostsSortBy.ShortDescription]: 'shortDescription',
-      [PostsSortBy.Content]: 'content',
+      [PostsSortBy.CreatedAt]: 'p.createdAt',
+      [PostsSortBy.Title]: 'p.title',
+      [PostsSortBy.ShortDescription]: 'p.shortDescription',
+      [PostsSortBy.Content]: 'p.content',
       [PostsSortBy.BlogName]: 'blogName',
     };
-    return fieldMap[sortBy as PostsSortBy] ?? 'createdAt';
+    return fieldMap[sortBy as PostsSortBy] ?? 'p.createdAt';
   }
 
   async getPosts(
@@ -94,6 +92,7 @@ export class PostsQueryRepository {
     const qb = this.postsRepo
       .createQueryBuilder('p')
       .leftJoin('p.blog', 'b')
+      .addSelect('b.name')
       .addSelect('b.name', 'blogName')
       .where('p.deletedAt IS NULL');
 
@@ -139,16 +138,21 @@ export class PostsQueryRepository {
       'newestLikes',
     );
 
-    const sortField = this.getSearchField(sortBy);
-    qb.orderBy(`p.${sortField}`, dir);
+    if (sortBy === PostsSortBy.BlogName) {
+      qb.orderBy('b.name', dir);
+    } else {
+      const sortField = this.getSearchField(sortBy);
+      qb.orderBy(sortField, dir);
+    }
+
+    // const sortField = this.getSearchField(sortBy);
+    // qb.orderBy(sortField, dir);
     qb.addOrderBy('p.id', dir);
     qb.skip(skip);
     qb.take(pageSize);
 
     const { entities, raw } = await qb.getRawAndEntities();
     const totalCount = await qb.getCount();
-
-    console.log('getPosts', { entities, raw });
 
     return {
       typedRaw: raw as RawPostRecord[],
