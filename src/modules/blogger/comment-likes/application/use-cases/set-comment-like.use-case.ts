@@ -4,6 +4,7 @@ import { CommentLikesRepository } from '../../infrastructure/comment-likes.repos
 import { DomainException } from '../../../../../core/exceptions/domain-exception';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { CommentsRepository } from '../../../comments/infrastructure/comments.repository';
+import { CommentLike } from '../../entity/comment-like.entity';
 
 export class SetCommentLikeCommand {
   constructor(
@@ -42,10 +43,12 @@ export class SetCommentLikeUseCase
       if (status === LikeStatusValue.None) {
         await repo.delete(userId, commentId);
       } else {
-        await repo.update(userId, commentId, status);
+        like.update(status);
+        await repo.save(like);
       }
     } else {
-      return repo.createLike(userId, commentId, status);
+      const like = CommentLike.create(userId, commentId, status);
+      await repo.save(like);
     }
   }
 }

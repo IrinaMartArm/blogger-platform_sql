@@ -4,6 +4,7 @@ import { PostsRepository } from '../../../posts/infrastructure/posts.repository'
 import { PostLikesRepository } from '../../infrastructure/post-likes.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exception';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { PostLike } from '../../domain/post-likes.entity';
 
 export class SetPostLikeStatusCommand {
   constructor(
@@ -37,10 +38,12 @@ export class SetPostLikeStatusUseCase
       if (status === LikeStatusValue.None) {
         await repo.deleteLike(userId, postId);
       } else {
-        await repo.updateStatus(userId, postId, status);
+        like.update(status);
+        await repo.save(like);
       }
     } else if (status !== LikeStatusValue.None) {
-      await repo.createLike(userId, postId, status);
+      const like = PostLike.create(userId, postId, status);
+      await repo.save(like);
     }
   }
 }

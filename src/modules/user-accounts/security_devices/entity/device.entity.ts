@@ -13,7 +13,7 @@ export class Device {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'integer', nullable: false, unique: true })
+  @Column({ type: 'integer', nullable: false })
   userId: number;
 
   @Column({ type: 'varchar', length: 200, nullable: false, unique: true })

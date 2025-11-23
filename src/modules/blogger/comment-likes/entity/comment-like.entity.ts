@@ -1,4 +1,4 @@
-import { LikeStatusValue } from '../dto';
+import { LikeStatusValue } from '../../post-likes/dto';
 import {
   Column,
   CreateDateColumn,
@@ -7,11 +7,11 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Post } from '../../posts/entity/post.entity';
+import { Comment } from '../../comments/entity/comment.entity';
 import { User } from '../../../user-accounts/user/entity/user.entity';
 
-@Entity('post_likes')
-export class PostLike {
+@Entity('comment_likes')
+export class CommentLike {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,7 +19,7 @@ export class PostLike {
   userId: number;
 
   @Column({ type: 'int', nullable: false })
-  postId: number;
+  commentId: number;
 
   @Column({ type: 'enum', enum: LikeStatusValue, nullable: false })
   status: LikeStatusValue;
@@ -31,18 +31,14 @@ export class PostLike {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(() => Post, (post) => post.likes)
-  @JoinColumn({ name: 'postId' })
-  post: Post;
+  @ManyToOne(() => Comment, (comment) => comment.likes)
+  @JoinColumn({ name: 'commentId' })
+  comment: Comment;
 
-  static create(
-    userId: number,
-    postId: number,
-    status: LikeStatusValue,
-  ): PostLike {
-    const like = new PostLike();
+  static create(userId: number, commentId: number, status: LikeStatusValue) {
+    const like = new CommentLike();
     like.userId = userId;
-    like.postId = postId;
+    like.commentId = commentId;
     like.status = status;
 
     return like;

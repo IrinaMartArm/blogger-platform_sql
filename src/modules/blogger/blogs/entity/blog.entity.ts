@@ -17,7 +17,7 @@ export class Blog extends BaseEntity {
   @Column({ type: 'varchar', length: 100, nullable: false })
   websiteUrl: string;
 
-  @Column()
+  @Column({ type: 'boolean', nullable: false, default: false })
   isMembership: boolean;
 
   @OneToMany(() => Post, (post) => post.blog, { onDelete: 'CASCADE' })

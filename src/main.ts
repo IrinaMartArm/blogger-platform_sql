@@ -11,9 +11,7 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  app.set('trust proxy', true); //'loopback' означает доверять только локальным прокси, то есть 127.0.0.1 и ::1.
-  //1 — доверять первому прокси (если у тебя один внешний прокси перед приложением, например Nginx).
-  //'true' — доверять всем прокси (чаще всего не рекомендуется по соображениям безопасности).
+  app.set('trust proxy', true);
 
   const coreConfig = app.get<CoreConfig>(CoreConfig);
 

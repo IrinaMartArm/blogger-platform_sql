@@ -12,13 +12,13 @@ export class CommentsViewDto {
     comment.content = dto.content;
     comment.createdAt = dto.createdAt.toISOString();
     comment.commentatorInfo = {
-      userId: dto.user_id.toString(),
-      userLogin: dto.login,
+      userId: dto.userId.toString(),
+      userLogin: dto.u_login,
     };
     comment.likesInfo = {
-      likesCount: Number(dto.likes_count),
-      dislikesCount: Number(dto.dislikes_count),
-      myStatus: dto.my_status,
+      likesCount: Number(dto.likesCount),
+      dislikesCount: Number(dto.dislikesCount),
+      myStatus: dto.myStatus,
     };
     return comment;
   }
@@ -30,13 +30,6 @@ export type CommentatorInfo = {
 };
 
 export type LikesInfo = {
-  likesCount: number;
-  dislikesCount: number;
-  myStatus: string;
-};
-
-export type LikesInfoWithCommentId = {
-  commentId: string;
   likesCount: number;
   dislikesCount: number;
   myStatus: string;

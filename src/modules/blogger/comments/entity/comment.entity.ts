@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
 import { Post } from '../../posts/entity/post.entity';
 import { User } from '../../../user-accounts/user/entity/user.entity';
 import { CreateCommentInputDto } from '../../posts/api/input-dto/posts.input-dto';
+import { CommentLike } from '../../comment-likes/entity/comment-like.entity';
 
 @Entity('comments')
 export class Comment extends BaseEntity {
@@ -22,6 +23,9 @@ export class Comment extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'userId' })
   user: User;
+
+  @OneToMany(() => CommentLike, (like) => like.comment, { onDelete: 'CASCADE' })
+  likes: CommentLike[];
 
   static create(userId: number, postId: number, dto: CreateCommentInputDto) {
     const comment = new Comment();

@@ -35,7 +35,6 @@ export class DeleteCommentsUseCase
         message: 'You do not have permission to delete a comment',
       });
     }
-
     await this.commentsRepository.deleteComment(commentId);
   }
 }

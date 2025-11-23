@@ -9,10 +9,9 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { CommentsQueryRepository } from '../infrastructure/comments.query-repository';
 import { CommentsViewDto } from './view-dto/comments.view-dto';
 import { JwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/jwt-auth.guard';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { DeleteCommentCommand } from '../application/use-cases/deleteComment.use-case';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/objectId-validation.pipe';
 import { UpdateCommentCommand } from '../application/use-cases/updateComment.use-case';
@@ -22,12 +21,13 @@ import { UserContextDto } from '../../../user-accounts/dto/user-context.dto';
 import { SetCommentLikeCommand } from '../../comment-likes/application/use-cases/set-comment-like.use-case';
 import { LikeInputDto } from '../../post-likes/dto';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/optional-jwt-auth.guard';
+import { GetCommentQuery } from '../application/query/get_comment.query';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private commentsQueryRepository: CommentsQueryRepository,
+    private queryBus: QueryBus,
   ) {}
 
   @Get('/:id')
@@ -37,7 +37,7 @@ export class CommentsController {
     @GetUserFromRequest() user?: UserContextDto,
   ): Promise<CommentsViewDto> {
     const userId = user && Number(user.currentUserId);
-    return await this.commentsQueryRepository.getComment(id, userId);
+    return await this.queryBus.execute(new GetCommentQuery(id, userId));
   }
 
   @Delete('/:id')

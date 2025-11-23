@@ -35,6 +35,7 @@ import { GetBlogAllPostsQueryHandler } from './blogs/application/query/get_blog_
 import { Post } from './posts/entity/post.entity';
 import { PostLike } from './post-likes/domain/post-likes.entity';
 import { Comment } from './comments/entity/comment.entity';
+import { CommentLike } from './comment-likes/entity/comment-like.entity';
 
 const useCases = [
   CreateBlogUseCase,
@@ -61,7 +62,7 @@ const query = [
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Blog, Post, PostLike, Comment]),
+    TypeOrmModule.forFeature([Blog, Post, PostLike, Comment, CommentLike]),
     UserAccountsModule,
   ],
   controllers: [

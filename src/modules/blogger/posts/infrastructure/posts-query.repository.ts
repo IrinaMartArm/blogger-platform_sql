@@ -3,14 +3,18 @@ import {
   PostsQueryParams,
   PostsSortBy,
 } from '../api/input-dto/posts.input-dto';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Post } from '../entity/post.entity';
 import { PostWithLikes, RawPostRecord } from '../api/view-dto/post.view-dto';
+import { PostLike } from '../../post-likes/domain/post-likes.entity';
 
 @Injectable()
 export class PostsQueryRepository {
-  constructor(@InjectRepository(Post) private postsRepo: Repository<Post>) {}
+  constructor(
+    @InjectDataSource() public dataSource: DataSource,
+    @InjectRepository(Post) private postsRepo: Repository<Post>,
+  ) {}
 
   async findPost(
     postId: number,
@@ -71,7 +75,7 @@ export class PostsQueryRepository {
       [PostsSortBy.Title]: 'p.title',
       [PostsSortBy.ShortDescription]: 'p.shortDescription',
       [PostsSortBy.Content]: 'p.content',
-      [PostsSortBy.BlogName]: 'blogName',
+      [PostsSortBy.BlogName]: '',
     };
     return fieldMap[sortBy as PostsSortBy] ?? 'p.createdAt';
   }
@@ -124,7 +128,7 @@ export class PostsQueryRepository {
       SELECT json_agg(likes_info)
       FROM (
         SELECT 
-          pl."userId"::text,
+          pl."userId"::int,
           u.login,
           pl."createdAt" as "addedAt"
         FROM post_likes pl
@@ -145,8 +149,6 @@ export class PostsQueryRepository {
       qb.orderBy(sortField, dir);
     }
 
-    // const sortField = this.getSearchField(sortBy);
-    // qb.orderBy(sortField, dir);
     qb.addOrderBy('p.id', dir);
     qb.skip(skip);
     qb.take(pageSize);

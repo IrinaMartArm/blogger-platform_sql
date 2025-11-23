@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import process from 'node:process';
+import * as process from 'node:process';
 import { CoreConfig } from './core.config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
