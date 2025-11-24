@@ -48,20 +48,17 @@ export class CommentsQueryRepository {
       .from(Comment, 'c')
       .leftJoin(User, 'u', 'u.id = c.userId')
       .select([
-        'c.id',
-        'c.content',
-        'c.createdAt',
-        'c.userId',
+        'c.*',
         'u.login',
 
         `(SELECT COUNT(*) 
         FROM comment_likes cl 
-        WHERE cl."commentId" = c.id AND cl.status = 'Like') 
+        WHERE cl."commentId" = c.id AND cl.status = 'Like')::int 
        AS "likesCount"`,
 
         `(SELECT COUNT(*) 
         FROM comment_likes cl 
-        WHERE cl."commentId" = c.id AND cl.status = 'Dislike') 
+        WHERE cl."commentId" = c.id AND cl.status = 'Dislike')::int
        AS "dislikesCount"`,
 
         `COALESCE(
@@ -75,7 +72,7 @@ export class CommentsQueryRepository {
         `COUNT(*) OVER()::int AS "totalCount"`,
       ])
       .where('c.postId = :postId', { postId })
-      .andWhere('c.deletedAt IS NULL')
+      .andWhere('c."deletedAt" IS NULL')
       .orderBy(sortField, dir)
       .addOrderBy('c.id', dir)
       .offset(skip)
@@ -140,26 +137,28 @@ export class CommentsQueryRepository {
         'u.login',
 
         `(SELECT COUNT(*) 
-        FROM comment_like cl 
-        WHERE cl.commentId = c.id AND cl.status = 'Like'
+        FROM comment_likes cl 
+        WHERE cl."commentId" = c.id AND cl.status = 'Like'
       )::int AS "likesCount"`,
 
         `(SELECT COUNT(*) 
-        FROM comment_like cl 
-        WHERE cl.commentId = c.id AND cl.status = 'Dislike'
+        FROM comment_likes cl 
+        WHERE cl."commentId" = c.id AND cl.status = 'Dislike'
       )::int AS "dislikesCount"`,
 
-        `(SELECT cl.status 
-        FROM comment_like cl 
-        WHERE cl.commentId = c.id 
-          AND cl.userId = :currentUserId
-        LIMIT 1
+        `COALESCE(
+        (SELECT cl.status 
+        FROM comment_likes cl 
+        WHERE cl."commentId" = c.id 
+          AND cl."userId" = :currentUserId
+        LIMIT 1),
+         'None'
       ) AS "myStatus"`,
       ])
       .from(Comment, 'c')
       .leftJoin(User, 'u', 'u.id = c.userId')
       .where('c.id = :commentId', { commentId })
-      .andWhere('c.deletedAt IS NULL')
+      .andWhere('c."deletedAt" IS NULL')
       .setParameter('currentUserId', currentUserId ?? null);
 
     const result = (await qb.getRawOne()) as CommentWithInfo;

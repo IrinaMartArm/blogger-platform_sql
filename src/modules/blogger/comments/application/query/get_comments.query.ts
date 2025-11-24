@@ -37,12 +37,14 @@ export class GetCommentsQueryHandler
         message: 'Post not found',
       });
     }
-
+    console.log('postId', postId);
     const result = await this.commentsQueryRepository.getComments(
       postId,
       query,
       userId,
     );
+
+    console.log('result', result);
 
     const items = result.map((comment) => CommentsViewDto.mapToView(comment));
     return PaginatedViewDto.mapToView({

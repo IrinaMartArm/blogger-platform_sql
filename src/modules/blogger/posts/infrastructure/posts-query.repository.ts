@@ -7,7 +7,6 @@ import { DataSource, Repository } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Post } from '../entity/post.entity';
 import { PostWithLikes, RawPostRecord } from '../api/view-dto/post.view-dto';
-import { PostLike } from '../../post-likes/domain/post-likes.entity';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -128,14 +127,14 @@ export class PostsQueryRepository {
       SELECT json_agg(likes_info)
       FROM (
         SELECT 
-          pl."userId"::int,
+          pl."userId"::text AS "userId",
           u.login,
           pl."createdAt" as "addedAt"
         FROM post_likes pl
         LEFT JOIN users u ON u.id = pl."userId"
         WHERE pl."postId" = p.id 
           AND pl.status = 'Like'
-        ORDER BY pl."createdAt" DESC, pl.id DESC
+        ORDER BY pl."createdAt" DESC
         LIMIT 3
       ) likes_info
     ), '[]'::json)`,

@@ -15,10 +15,12 @@ export class GetCommentQuery {
 export class GetCommentQueryHandler implements IQueryHandler<GetCommentQuery> {
   constructor(private commentsQueryRepository: CommentsQueryRepository) {}
   async execute({ commentId, currentUserId }: GetCommentQuery) {
+    console.log(commentId, currentUserId);
     const comment = await this.commentsQueryRepository.getComment(
       commentId,
       currentUserId,
     );
+    console.log('comment', comment);
     if (!comment) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
