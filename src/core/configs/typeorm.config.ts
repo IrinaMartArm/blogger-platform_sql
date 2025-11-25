@@ -3,9 +3,8 @@ import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
 import * as path from 'path';
 
-config({ path: path.resolve(__dirname, '../../env/.env.development') });
-
-console.log('PATSH', path.resolve('migrations'));
+// config({ path: path.resolve(__dirname, '../../env/.env.development') });
+config({ path: 'src/env/.env.development' });
 
 export default new DataSource({
   type: 'postgres',
@@ -14,7 +13,9 @@ export default new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: [path.resolve(__dirname, '../../**/*.entity.ts')],
-  migrations: [path.resolve('migrations/*.ts')],
+  // entities: [path.resolve(__dirname, '../../**/*.entity.ts')],
+  entities: ['src/**/*.entity{.ts,.js}'],
+  migrations: ['migrations/*{.ts,.js}'],
+  // migrations: [path.resolve('migrations/*.ts')],
   synchronize: false,
 });

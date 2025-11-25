@@ -10,7 +10,7 @@ export const getTypeOrmConfig = (config: CoreConfig): TypeOrmModuleOptions => ({
   username: config.postgreUser,
   password: config.postgrePass,
   database: config.database,
-  entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
+  // entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
   ssl:
