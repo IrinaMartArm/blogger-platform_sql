@@ -3,6 +3,7 @@ import { Response } from 'supertest';
 import { CreateUserInputDto } from '../../src/modules/user-accounts/user/api/input-dto/users.input-dto';
 import { INestApplication } from '@nestjs/common';
 import { CreateUserDto } from '../../src/modules/user-accounts/dto/create-user.dto';
+import { LoginInputDto } from '../../src/modules/user-accounts/auth/api/input-dto/login.input-dto';
 
 export const login = 'admin';
 export const password = 'qwerty';
@@ -35,8 +36,27 @@ export class UsersTestManager {
 
   async getUsers(): Promise<Response> {
     return await request(this.app.getHttpServer())
-      .get('/sa/users?pageNumber=1&pageSize=1&sort=createdAt')
+      .get('/sa/users?pageNumber=1&pageSize=10&sort=createdAt')
       .auth(login, password)
       .expect(200);
+  }
+
+  async registration(user: CreateUserInputDto): Promise<Response> {
+    return await request(this.app.getHttpServer())
+      .post('/auth/registration')
+      .send(user)
+      .expect(204);
+  }
+
+  async login(credentials: LoginInputDto): Promise<Response> {
+    return await request(this.app.getHttpServer())
+      .post('/auth/login')
+      .send(credentials)
+      .expect(200);
+  }
+
+  async createAndLoginUser(): Promise<Response> {
+    await this.createUser();
+    return await this.login({ loginOrEmail: login, password });
   }
 }

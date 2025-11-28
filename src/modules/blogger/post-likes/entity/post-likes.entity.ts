@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -11,6 +12,8 @@ import { Post } from '../../posts/entity/post.entity';
 import { User } from '../../../user-accounts/user/entity/user.entity';
 
 @Entity('post_likes')
+@Index(['postId', 'status'])
+@Index(['postId', 'userId'], { unique: true })
 export class PostLike {
   @PrimaryGeneratedColumn()
   id: number;

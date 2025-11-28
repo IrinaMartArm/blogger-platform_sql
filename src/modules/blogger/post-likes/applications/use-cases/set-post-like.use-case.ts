@@ -4,7 +4,7 @@ import { PostsRepository } from '../../../posts/infrastructure/posts.repository'
 import { PostLikesRepository } from '../../infrastructure/post-likes.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exception';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { PostLike } from '../../domain/post-likes.entity';
+import { PostLike } from '../../entity/post-likes.entity';
 
 export class SetPostLikeStatusCommand {
   constructor(

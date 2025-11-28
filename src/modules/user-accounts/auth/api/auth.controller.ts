@@ -18,15 +18,15 @@ import { GetUserFromRequest } from '../../decorators/param/getUserFromRequest';
 import { UserContextDto } from '../../dto/user-context.dto';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ConfirmRegistrationCommand } from '../application/commands/confirmRegistration.use-case';
+import { ConfirmRegistrationCommand } from '../application/commands/confirm-registration.use-case';
 import { RegistrationCommand } from '../application/commands/registration.use-case';
 import { LoginCommand } from '../application/commands/login.use-case';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
-import { PasswordRecoveryCommand } from '../application/commands/passwordRecovery.use-case';
-import { EmailResendingCommand } from '../application/commands/emailResending.use-case';
+import { PasswordRecoveryCommand } from '../application/commands/password-recovery.use-case';
+import { EmailResendingCommand } from '../application/commands/email-resending.use-case';
 import { NewPasswordCommand } from '../application/commands/new-password.use-case';
 import { CustomThrottlerGuard } from '../../../../core/guards/throttler-behind-proxy.guard';
-import { GetMeQuery } from '../infrastructure/query/get-me.query';
+import { GetMeQuery } from '../application/query/get-me.query';
 import {
   CheckEmailDto,
   CreateUserInputDto,

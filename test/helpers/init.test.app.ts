@@ -7,6 +7,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { UserAccountsModule } from '../../src/modules/user-accounts/user-accounts.module';
 import { UsersTestManager } from './usersTestManager';
 import { TestingController } from '../../src/modules/testing/testing.controller';
+import { QuizGameModule } from '../../src/modules/quizGame/quizGame.module';
 
 export const getInitApp = async () => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -36,6 +37,7 @@ export const getInitApp = async () => {
         ],
       }),
       UserAccountsModule,
+      QuizGameModule,
     ],
     controllers: [TestingController],
   }).compile();

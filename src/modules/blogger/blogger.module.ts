@@ -33,7 +33,7 @@ import { GetBlogQueryHandler } from './blogs/application/query/get_blog.query';
 import { GetBlogsQueryHandler } from './blogs/application/query/get_blogs.query';
 import { GetBlogAllPostsQueryHandler } from './blogs/application/query/get_blog_all_posts.query';
 import { Post } from './posts/entity/post.entity';
-import { PostLike } from './post-likes/domain/post-likes.entity';
+import { PostLike } from './post-likes/entity/post-likes.entity';
 import { Comment } from './comments/entity/comment.entity';
 import { CommentLike } from './comment-likes/entity/comment-like.entity';
 

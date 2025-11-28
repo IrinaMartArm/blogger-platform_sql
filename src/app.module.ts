@@ -13,6 +13,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoreConfig } from './core/configs/core.config';
 import { getTypeOrmConfig } from './core/configs/typeorm.moduleOptions.config';
+import { QuizGameModule } from './modules/quizGame/quizGame.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { getTypeOrmConfig } from './core/configs/typeorm.moduleOptions.config';
     }),
     UserAccountsModule,
     BloggerModule,
+    QuizGameModule,
     TestingModule,
   ],
   controllers: [AppController],

@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
 import { Post } from '../../posts/entity/post.entity';
 import { User } from '../../../user-accounts/user/entity/user.entity';
@@ -7,9 +14,11 @@ import { CommentLike } from '../../comment-likes/entity/comment-like.entity';
 
 @Entity('comments')
 export class Comment extends BaseEntity {
+  @Index()
   @Column({ type: 'int', nullable: false })
   postId: number;
 
+  @Index()
   @Column({ type: 'int', nullable: false })
   userId: number;
 

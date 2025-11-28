@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import {
   CreateBlogInputDto,
   UpdateBlogInputDto,
@@ -6,8 +6,10 @@ import {
 import { Post } from '../../posts/entity/post.entity';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
 
+@Index(['deletedAt'])
 @Entity('blogs')
 export class Blog extends BaseEntity {
+  @Index()
   @Column({ type: 'varchar', length: 15, nullable: false, collation: 'C' })
   name: string;
 

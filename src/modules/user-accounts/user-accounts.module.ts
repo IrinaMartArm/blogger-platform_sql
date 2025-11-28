@@ -5,7 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { LocalStrategy } from './auth/guards/local/local.strategy';
 import { AuthController } from './auth/api/auth.controller';
-import { ConfirmRegistrationUseCase } from './auth/application/commands/confirmRegistration.use-case';
+import { ConfirmRegistrationUseCase } from './auth/application/commands/confirm-registration.use-case';
 import { RegistrationUseCase } from './auth/application/commands/registration.use-case';
 
 import {
@@ -13,8 +13,8 @@ import {
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from './constants/token.constants';
 import { NewPasswordUseCase } from './auth/application/commands/new-password.use-case';
-import { EmailResendingUseCase } from './auth/application/commands/emailResending.use-case';
-import { PasswordRecoveryUseCase } from './auth/application/commands/passwordRecovery.use-case';
+import { EmailResendingUseCase } from './auth/application/commands/email-resending.use-case';
+import { PasswordRecoveryUseCase } from './auth/application/commands/password-recovery.use-case';
 import { LoginUseCase } from './auth/application/commands/login.use-case';
 import { UserAccountsConfig } from './user-accounts.config';
 import { SecurityDevicesController } from './security_devices/api/security-devices.controller';
@@ -32,7 +32,7 @@ import { AuthService } from './auth/application/auth.service';
 import { DevicesRepository } from './security_devices/infrastructure/devices.repository';
 import { RefreshTokenUseCase } from './auth/application/commands/refresh-token.use-case';
 import { GetUsersHandler } from './user/infrastructure/query/get-users.query';
-import { GetMeHandler } from './auth/infrastructure/query/get-me.query';
+import { GetMeHandler } from './auth/application/query/get-me.query';
 import { CreateUserUseCase } from './user/application/useCases/create-user.use-case';
 import { GetUserQueryUseCase } from './user/infrastructure/query/get-user.query';
 import { JwtRefreshStrategy } from './auth/guards/bearer/refresh.strategy';

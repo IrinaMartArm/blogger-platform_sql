@@ -14,10 +14,8 @@ export class CommentsRepository {
     await this.commentsRepo.save(comment);
   }
 
-  async findComment(commentId: number): Promise<Comment | null> {
-    return this.commentsRepo.findOneBy({
-      id: commentId,
-    });
+  async findComment(id: number): Promise<Comment | null> {
+    return this.commentsRepo.findOneBy({ id });
   }
 
   async deleteComment(id: number): Promise<void> {

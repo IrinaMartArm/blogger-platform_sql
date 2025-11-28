@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -11,6 +12,8 @@ import { Comment } from '../../comments/entity/comment.entity';
 import { User } from '../../../user-accounts/user/entity/user.entity';
 
 @Entity('comment_likes')
+@Index(['commentId', 'status'])
+@Index(['commentId', 'userId'], { unique: true })
 export class CommentLike {
   @PrimaryGeneratedColumn()
   id: number;
@@ -24,6 +27,7 @@ export class CommentLike {
   @Column({ type: 'enum', enum: LikeStatusValue, nullable: false })
   status: LikeStatusValue;
 
+  @Index()
   @CreateDateColumn({ type: 'timestamptz', default: () => 'NOW()' })
   createdAt: string;
 

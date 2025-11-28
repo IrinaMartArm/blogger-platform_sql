@@ -1,11 +1,18 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { Blog } from '../../blogs/entity/blog.entity';
 import {
   CreatePostInputDto,
   UpdatePostInputDto,
 } from '../api/input-dto/posts.input-dto';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
-import { PostLike } from '../../post-likes/domain/post-likes.entity';
+import { PostLike } from '../../post-likes/entity/post-likes.entity';
 import { Comment } from '../../comments/entity/comment.entity';
 
 @Entity('posts')
@@ -19,6 +26,7 @@ export class Post extends BaseEntity {
   @Column({ type: 'varchar', length: 1000, nullable: false })
   content: string;
 
+  @Index()
   @Column({ type: 'int', nullable: false })
   blogId: number;
 
