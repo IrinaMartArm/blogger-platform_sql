@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -16,7 +17,8 @@ export class PlayerProgress {
   @Column({ type: 'int', default: 0 })
   score: number;
 
-  @Column()
+  @Index()
+  @Column({ type: 'int', nullable: false })
   userId: number;
 
   @ManyToOne(() => User, { eager: true })

@@ -21,37 +21,44 @@ export class ConnectGameCommandHandler
     private readonly playerRepo: PlayersRepository,
   ) {}
 
-  async execute({ userId }: ConnectGameCommand): Promise<Game> {
-    return this.dataSource.transaction<Game>(
-      'REPEATABLE READ',
-      async (manager) => {
-        const gameRepository = this.gameRepo.withTransaction(manager);
-        const playerRepository = this.playerRepo.withTransaction(manager);
+  async execute({ userId }: ConnectGameCommand): Promise<number> {
+    return this.dataSource.transaction('REPEATABLE READ', async (manager) => {
+      //✔ commit срабатывает после успешного выполнения callback
+      // ✔ rollback срабатывает, если callback выбрасывает ошибку
+      const gameRepository = this.gameRepo.withTransaction(manager);
+      const playerRepository = this.playerRepo.withTransaction(manager);
 
-        const player = await playerRepository.findPlayer(userId);
-        if (player) {
-          throw new DomainException({
-            code: DomainExceptionCode.Forbidden,
-            message: 'You are have active game',
-          });
-        }
+      const player = await playerRepository.findPlayer(userId);
+      if (player) {
+        throw new DomainException({
+          code: DomainExceptionCode.Forbidden,
+          message: 'You are have active game',
+        });
+      }
 
-        const newPlayer = PlayerProgress.create(userId);
-        await playerRepository.save(newPlayer);
+      const newPlayer = PlayerProgress.create(userId);
+      await playerRepository.save(newPlayer);
 
-        const freeGame = await gameRepository.findFreeGame();
+      const freeGame = await gameRepository.findFreeGame();
 
-        if (freeGame) {
-          freeGame.startGame(newPlayer.id);
-          await playerRepository.save(newPlayer);
-          return freeGame;
-        }
+      if (freeGame) {
+        const questions = [];
+        freeGame.startGame(newPlayer.id, questions);
+        await gameRepository.save(freeGame);
+        return freeGame.id;
+      }
 
-        const newGame = Game.create(newPlayer.id);
-        await gameRepository.save(newGame);
+      const newGame = Game.create(newPlayer.id);
+      await gameRepository.save(newGame);
 
-        return newGame;
-      },
-    );
+      return newGame.id;
+    });
   }
 }
+//🎯 Простой аналогия
+// DataSource.transaction → как запуск функции "сделать заказ"
+// Manager → официант: "всё делаю в рамках этого заказа"
+// TransactionalRepository → твоя тетрадка с рецептами: просто даёт инструкции официанту
+// save/find → приготовление блюд
+// commit → заказ завершён
+// rollback → заказ отменён

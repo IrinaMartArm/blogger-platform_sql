@@ -11,8 +11,9 @@ import { JwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/jwt-auth
 import { GetUserFromRequest } from '../../../user-accounts/decorators/param/getUserFromRequest';
 import { UserContextDto } from '../../../user-accounts/dto/user-context.dto';
 import { GameViewDto } from './view-dto/game.view-dto';
-import { GetGameQuery } from '../application/query/get_game.use-case';
+import { GetGameByIdQuery } from '../application/query/get_game_by_id.use-case';
 import { ConnectGameCommand } from '../application/commands/connect_game.use-case';
+import { GetMyCurrentGameQuery } from '../application/query/get_my_current_game_query.use-case';
 
 @Controller('pair-game-quiz/pairs')
 export class GameController {
@@ -27,7 +28,9 @@ export class GameController {
   async getGame(
     @GetUserFromRequest() user: UserContextDto,
   ): Promise<GameViewDto> {
-    return this.queryBus.execute(new GetGameQuery(Number(user.currentUserId)));
+    return this.queryBus.execute(
+      new GetMyCurrentGameQuery(Number(user.currentUserId)),
+    );
   }
 
   @Post('connection')
@@ -36,9 +39,9 @@ export class GameController {
   async startGame(
     @GetUserFromRequest() user: UserContextDto,
   ): Promise<GameViewDto> {
-    console.log('connection');
-    return this.commandBus.execute(
+    const gameId: number = await this.commandBus.execute(
       new ConnectGameCommand(Number(user.currentUserId)),
     );
+    return this.queryBus.execute(new GetGameByIdQuery(gameId));
   }
 }
