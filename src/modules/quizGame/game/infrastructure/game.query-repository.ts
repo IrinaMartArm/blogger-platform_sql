@@ -29,27 +29,4 @@ export class GameQueryRepository {
       .where('g.id = :id', { id })
       .getOne();
   }
-
-  async getGame2(id: number) {
-    return this.dataSource
-      .createQueryBuilder()
-      .from(Game, 'g')
-      .leftJoinAndMapOne(
-        'g.firstPlayerProgress',
-        PlayerProgress,
-        'fp',
-        'fp.id = g.firstPlayerProgressId',
-      )
-      .leftJoinAndMapOne('fp.player', User, 'fu', 'fu.id = fp.userId')
-      .leftJoinAndMapOne(
-        'g.secondPlayerProgress',
-        PlayerProgress,
-        'sp',
-        'sp.id = g.secondPlayerProgressId',
-      )
-      .leftJoinAndMapOne('sp.player', User, 'su', 'su.id = sp.userId')
-      .select()
-      .where('g.id = :id', { id })
-      .getOne();
-  }
 }

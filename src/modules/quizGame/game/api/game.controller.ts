@@ -5,6 +5,7 @@ import {
   Post,
   UseGuards,
   Get,
+  Param,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/jwt-auth.guard';
@@ -14,6 +15,7 @@ import { GameViewDto } from './view-dto/game.view-dto';
 import { GetGameByIdQuery } from '../application/query/get_game_by_id.use-case';
 import { ConnectGameCommand } from '../application/commands/connect_game.use-case';
 import { GetMyCurrentGameQuery } from '../application/query/get_my_current_game_query.use-case';
+import { ObjectIdValidationPipe } from '../../../../core/pipes/objectId-validation.pipe';
 
 @Controller('pair-game-quiz/pairs')
 export class GameController {
@@ -33,6 +35,15 @@ export class GameController {
     );
   }
 
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getGameById(
+    @Param('id', ObjectIdValidationPipe) id: number,
+  ): Promise<GameViewDto> {
+    return this.queryBus.execute(new GetGameByIdQuery(id));
+  }
+
   @Post('connection')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -44,4 +55,9 @@ export class GameController {
     );
     return this.queryBus.execute(new GetGameByIdQuery(gameId));
   }
+
+  @Post('my-current/answers')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async sendAnswer() {}
 }

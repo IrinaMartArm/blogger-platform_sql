@@ -18,7 +18,7 @@ export class GameRepository extends TransactionalRepository<Game> {
     });
   }
 
-  async findGame(id: number): Promise<Game | null> {
+  async findGameByPlayer(id: number): Promise<Game | null> {
     return this.repo
       .createQueryBuilder('g')
       .where('g.firstPlayerId = :id', { id })

@@ -19,6 +19,13 @@ export class QuestionsRepository extends TransactionalRepository<Question> {
       .getOne();
   }
 
+  async getQuestions(): Promise<Question[]> {
+    return await this.dataSource
+      .createQueryBuilder(Question, 'q')
+      // .take(10)
+      .getMany();
+  }
+
   async deleteQuestion(id: number): Promise<void> {
     await this.dataSource
       .createQueryBuilder()

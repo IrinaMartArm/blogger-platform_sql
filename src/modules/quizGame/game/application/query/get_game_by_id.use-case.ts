@@ -13,9 +13,8 @@ export class GetGameQueryHandler implements IQueryHandler<GetGameByIdQuery> {
   constructor(private readonly gameRepo: GameQueryRepository) {}
 
   async execute({ gameId }: GetGameByIdQuery): Promise<GameViewDto> {
-    console.log('gameId', gameId);
     const result = await this.gameRepo.getGame(gameId);
-    console.log('result', result);
+
     if (!result) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,

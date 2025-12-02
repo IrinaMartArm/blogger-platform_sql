@@ -19,6 +19,7 @@ import { DeleteQuestionCommandHandler } from './questions/application/commands/d
 import { UpdateQuestionHandler } from './questions/application/commands/update_question.use-case';
 import { UpdatePublishCommandHandler } from './questions/application/commands/update_publish.use-case';
 import { GetQuestionsQueryHandler } from './questions/application/query/get_questions.query';
+import { PlayersQueryRepository } from './player/infrastructure/players.query-repository';
 
 const queries = [
   GetGameQueryHandler,
@@ -41,6 +42,7 @@ const commands = [
     GameQueryRepository,
     GameRepository,
     PlayersRepository,
+    PlayersQueryRepository,
     QuestionsRepository,
     QuestionQueryRepository,
     ...queries,

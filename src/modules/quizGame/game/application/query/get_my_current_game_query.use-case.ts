@@ -1,5 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GameViewDto } from '../../api/view-dto/game.view-dto';
+import { DomainException } from '../../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { GameQueryRepository } from '../../infrastructure/game.query-repository';
+import { PlayersQueryRepository } from '../../../player/infrastructure/players.query-repository';
 
 export class GetMyCurrentGameQuery {
   constructor(public readonly userId: number) {}
@@ -9,10 +13,30 @@ export class GetMyCurrentGameQuery {
 export class GetMyCurrentGameQueryHandler
   implements IQueryHandler<GetMyCurrentGameQuery>
 {
-  constructor() {}
+  constructor(
+    private readonly playerRepo: PlayersQueryRepository,
+    private readonly gameRepo: GameQueryRepository,
+  ) {}
 
   async execute({ userId }: GetMyCurrentGameQuery): Promise<GameViewDto> {
-    console.log(userId);
-    return Promise.resolve({} as GameViewDto);
+    const player = await this.playerRepo.findPlayer(userId);
+
+    if (!player) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'game not found',
+      });
+    }
+
+    const activeGame = await this.gameRepo.getGame(player.id);
+
+    if (!activeGame || !activeGame.secondPlayerProgress) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'No active pair for current user',
+      });
+    }
+
+    return GameViewDto.mapToView(activeGame);
   }
 }

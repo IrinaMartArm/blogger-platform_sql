@@ -6,6 +6,7 @@ import { Game } from '../../entity/game.entity';
 import { PlayerProgress } from '../../../player/entity/player.entity';
 import { PlayersRepository } from '../../../player/infrastructure/players.repository';
 import { DataSource } from 'typeorm';
+import { QuestionsRepository } from '../../../questions/infrastructure/questions.repository';
 
 export class ConnectGameCommand {
   constructor(public readonly userId: number) {}
@@ -19,6 +20,7 @@ export class ConnectGameCommandHandler
     private readonly dataSource: DataSource,
     private readonly gameRepo: GameRepository,
     private readonly playerRepo: PlayersRepository,
+    private readonly questionsRepo: QuestionsRepository,
   ) {}
 
   async execute({ userId }: ConnectGameCommand): Promise<number> {
@@ -42,7 +44,7 @@ export class ConnectGameCommandHandler
       const freeGame = await gameRepository.findFreeGame();
 
       if (freeGame) {
-        const questions = [];
+        const questions = await this.questionsRepo.getQuestions();
         freeGame.startGame(newPlayer.id, questions);
         await gameRepository.save(freeGame);
         return freeGame.id;

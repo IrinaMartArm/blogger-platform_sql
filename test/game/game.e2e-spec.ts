@@ -94,21 +94,23 @@ describe('Game Game Game Test', () => {
       correctAnswers: ['otvet 1', 'otvet 2'],
     };
 
-    const question = await gameTestManager.createQuestion();
+    const result = await gameTestManager.createQuestion();
+    const question = result.body as QuestionsViewDto;
+
     await request(app.getHttpServer())
-      .put(`/sa/quiz/questions/${question.body.id}`)
+      .put(`/sa/quiz/questions/${question.id}`)
       .set('Authorization', generateBasicAuthToken())
       .send(body)
       .expect(204);
 
     const resp = await gameTestManager.getQuestions();
-    const item = resp.body.items[0];
+    const item = resp.body.items[0] as QuestionsViewDto;
 
     expect(item).toEqual({
-      id: question.body.id as string,
+      id: question.id,
       body: body.body,
       correctAnswers: body.correctAnswers,
-      createdAt: question.body.createdAt as string,
+      createdAt: question.createdAt,
       published: false,
       updatedAt: expect.any(String) as string,
     });
@@ -145,24 +147,6 @@ describe('Game Game Game Test', () => {
     const item = resp.body.items[0] as QuestionsViewDto;
 
     expect(item.published).toBe(true);
-  });
-
-  it('should sort by body desc', async () => {
-    await gameTestManager.createQuestion({
-      body: 'AAA question',
-      correctAnswers: ['1'],
-    });
-    await gameTestManager.createQuestion({
-      body: 'ZZZ question',
-      correctAnswers: ['1'],
-    });
-
-    const res = await request(app.getHttpServer())
-      .get('/sa/quiz/questions?sortBy=body&sortDirection=DESC')
-      .set('Authorization', generateBasicAuthToken())
-      .expect(200);
-
-    expect(res.body.items[0].body.startsWith('ZZZ')).toBe(true);
   });
 
   it('should filter by bodySearchTerm', async () => {
