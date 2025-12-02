@@ -8,6 +8,8 @@ import { UserAccountsModule } from '../../src/modules/user-accounts/user-account
 import { UsersTestManager } from './usersTestManager';
 import { TestingController } from '../../src/modules/testing/testing.controller';
 import { QuizGameModule } from '../../src/modules/quizGame/quizGame.module';
+import { GameTestManager } from './gameTestManager';
+import { pipesSetup } from '../../src/setup/pipes.setup';
 
 export const getInitApp = async () => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -43,9 +45,11 @@ export const getInitApp = async () => {
   }).compile();
 
   const app = moduleFixture.createNestApplication();
+  pipesSetup(app);
   await app.init();
   // await app.listen(0); // ← обязательно!
   const userTestManger = new UsersTestManager(app);
+  const gameTestManager = new GameTestManager(app);
 
-  return { app, userTestManger };
+  return { app, userTestManger, gameTestManager };
 };

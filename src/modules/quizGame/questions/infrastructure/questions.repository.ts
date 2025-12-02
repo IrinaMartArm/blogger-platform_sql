@@ -5,8 +5,27 @@ import { DataSource } from 'typeorm';
 
 @Injectable()
 export class QuestionsRepository extends TransactionalRepository<Question> {
-  constructor(dataSource: DataSource) {
+  constructor(
+    dataSource: DataSource,
+    // @InjectRepository(Question) private readonly repo: Repository<Question>,
+  ) {
     super(dataSource, Question);
+  }
+
+  async getById(id: number): Promise<Question | null> {
+    return this.dataSource
+      .createQueryBuilder(Question, 'q')
+      .where('q.id = :id', { id })
+      .getOne();
+  }
+
+  async deleteQuestion(id: number): Promise<void> {
+    await this.dataSource
+      .createQueryBuilder()
+      .delete()
+      .from(Question, 'q')
+      .where('q.id = :id', { id })
+      .execute();
   }
 
   async findByAnswer(answer: string): Promise<Question[]> {

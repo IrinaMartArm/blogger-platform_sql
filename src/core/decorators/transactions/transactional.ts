@@ -27,7 +27,11 @@ export class TransactionalRepository<T extends ObjectLiteral> {
     return instance;
   }
 
-  async save(entity: T): Promise<T> {
-    return this.repo.save(entity);
+  async save(entity: T): Promise<void> {
+    await this.repo.save(entity);
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.repo.delete(id);
   }
 }

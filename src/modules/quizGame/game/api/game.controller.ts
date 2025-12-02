@@ -1,10 +1,10 @@
 import {
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Post,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/jwt-auth.guard';

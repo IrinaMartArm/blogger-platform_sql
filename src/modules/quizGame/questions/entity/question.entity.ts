@@ -44,5 +44,21 @@ export class Question {
     return question;
   }
 
+  update(dto: QuestionsInputDto) {
+    this.body = dto.body;
+    this.correctAnswers = dto.correctAnswers.reduce(
+      (acc, answer, index) => {
+        const key = String.fromCharCode(65 + index); // A, B, C, D...
+        acc[key] = answer.trim();
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+  }
+
+  changePublished(isPublished: boolean) {
+    this.published = isPublished;
+  }
+
   checkAnswers(dto: AnswerInputDto) {}
 }

@@ -11,18 +11,38 @@ import { GameRepository } from './game/infrastructure/game.repository';
 import { Question } from './questions/entity/question.entity';
 import { GetMyCurrentGameQueryHandler } from './game/application/query/get_my_current_game_query.use-case';
 import { QuestionsRepository } from './questions/infrastructure/questions.repository';
+import { QuestionsController } from './questions/api/questions.sa.controller';
+import { CreateQuestionCommandHandler } from './questions/application/commands/create_question.use-case';
+import { QuestionQueryRepository } from './questions/infrastructure/question.query-repository';
+import { GetQuestionQueryHandler } from './questions/application/query/get_question.query';
+import { DeleteQuestionCommandHandler } from './questions/application/commands/delete_question.use-case';
+import { UpdateQuestionHandler } from './questions/application/commands/update_question.use-case';
+import { UpdatePublishCommandHandler } from './questions/application/commands/update_publish.use-case';
+import { GetQuestionsQueryHandler } from './questions/application/query/get_questions.query';
 
-const queries = [GetGameQueryHandler, GetMyCurrentGameQueryHandler];
-const commands = [ConnectGameCommandHandler];
+const queries = [
+  GetGameQueryHandler,
+  GetMyCurrentGameQueryHandler,
+  GetQuestionQueryHandler,
+  GetQuestionsQueryHandler,
+];
+const commands = [
+  ConnectGameCommandHandler,
+  CreateQuestionCommandHandler,
+  DeleteQuestionCommandHandler,
+  UpdateQuestionHandler,
+  UpdatePublishCommandHandler,
+];
 
 @Module({
   imports: [TypeOrmModule.forFeature([Game, PlayerProgress, Question])],
-  controllers: [GameController],
+  controllers: [GameController, QuestionsController],
   providers: [
     GameQueryRepository,
     GameRepository,
     PlayersRepository,
     QuestionsRepository,
+    QuestionQueryRepository,
     ...queries,
     ...commands,
   ],
