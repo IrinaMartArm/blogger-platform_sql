@@ -30,11 +30,12 @@ export class ConnectGameCommandHandler
       const gameRepository = this.gameRepo.withTransaction(manager);
       const playerRepository = this.playerRepo.withTransaction(manager);
 
-      const player = await playerRepository.findPlayer(userId);
-      if (player) {
+      const activeGame = await gameRepository.findGameByUserId(userId);
+
+      if (activeGame) {
         throw new DomainException({
           code: DomainExceptionCode.Forbidden,
-          message: 'You are have active game',
+          message: 'You already have an active game',
         });
       }
 
@@ -60,7 +61,7 @@ export class ConnectGameCommandHandler
 //🎯 Простой аналогия
 // DataSource.transaction → как запуск функции "сделать заказ"
 // Manager → официант: "всё делаю в рамках этого заказа"
-// TransactionalRepository → твоя тетрадка с рецептами: просто даёт инструкции официанту
+// TransactionalRepository → тетрадка с рецептами: просто даёт инструкции официанту
 // save/find → приготовление блюд
 // commit → заказ завершён
 // rollback → заказ отменён

@@ -6,9 +6,10 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { GameStatus } from '../api/view-dto/game.view-dto';
+import { AnswerStatus, GameStatus } from '../api/view-dto/game.view-dto';
 import { PlayerProgress } from '../../player/entity/player.entity';
 import { Question } from '../../questions/entity/question.entity';
+import { AnswerEntity } from '../../answer/entity/answer.entity';
 
 @Entity('games')
 export class Game {
@@ -41,11 +42,11 @@ export class Game {
   @Column({ type: 'jsonb', nullable: true, default: null })
   questions: Question[] | null;
 
-  @OneToOne(() => PlayerProgress, { onDelete: 'CASCADE' })
+  @OneToOne(() => PlayerProgress, { onDelete: 'CASCADE', cascade: true })
   @JoinColumn({ name: 'firstPlayerProgressId' }) //владелец связи — тот, у кого есть @JoinColumn()
   firstPlayerProgress: PlayerProgress;
 
-  @OneToOne(() => PlayerProgress, { onDelete: 'CASCADE' })
+  @OneToOne(() => PlayerProgress, { onDelete: 'CASCADE', cascade: true })
   @JoinColumn({ name: 'secondPlayerProgressId' })
   secondPlayerProgress: PlayerProgress | null;
 
@@ -66,4 +67,86 @@ export class Game {
     this.questions = questions;
     this.startGameDate = new Date();
   }
+
+  checkAnswer(answer: string, userId: number) {
+    if (
+      !this.questions ||
+      !this.firstPlayerProgress ||
+      !this.secondPlayerProgress ||
+      this.status !== GameStatus.Active
+    ) {
+      return null;
+    }
+
+    const currentPlayer =
+      this.firstPlayerProgress.userId === userId
+        ? this.firstPlayerProgress
+        : this.secondPlayerProgress;
+
+    const opponent =
+      currentPlayer === this.firstPlayerProgress
+        ? this.secondPlayerProgress
+        : this.firstPlayerProgress;
+
+    if (currentPlayer.answers.length >= 5) {
+      return null;
+    }
+
+    const index = currentPlayer.answers.length;
+    const question = this.questions[index];
+
+    const isCorrect = question.correctAnswers
+      .map((a) => a.trim().toLowerCase())
+      .includes(answer.trim().toLowerCase());
+
+    const answerResult = new AnswerEntity();
+    answerResult.questionId = question.id;
+    answerResult.answerStatus = isCorrect
+      ? AnswerStatus.Correct
+      : AnswerStatus.Incorrect;
+    answerResult.addedAt = new Date();
+    answerResult.player = currentPlayer;
+
+    currentPlayer.answers.push(answerResult);
+
+    if (isCorrect) {
+      currentPlayer.score += 1;
+    }
+
+    const currentAnswers = currentPlayer.answers.length;
+    const opponentAnswers = opponent.answers.length;
+    const totalQuestions = 5;
+
+    const currentFinished = currentAnswers === totalQuestions;
+    const opponentFinished = opponentAnswers === totalQuestions;
+
+    if (currentFinished && opponentFinished) {
+      const currentLastTime = currentPlayer.answers[4].addedAt;
+      const opponentLastTime = opponent.answers[4].addedAt;
+
+      if (currentLastTime < opponentLastTime && currentPlayer.score > 0) {
+        currentPlayer.score += 1;
+      } else if (currentLastTime > opponentLastTime && opponent.score > 0) {
+        opponent.score += 1;
+      }
+
+      this.status = GameStatus.Finished;
+      this.finishGameDate = new Date();
+    }
+    return answerResult;
+  }
+
+  // finishGame() {
+  //   if (currentFinished && !opponentFinished) {
+  //     const diff = Date.now() - currentPlayer.answers[4].addedAt.getTime();
+  //
+  //     const TIMEOUT = 30 * 60 * 1000;
+  //
+  //     if (diff > TIMEOUT) {
+  //       currentPlayer.score += 1;
+  //       this.status = GameStatus.Finished;
+  //       this.finishGameDate = new Date();
+  //     }
+  //   }
+  // }
 }

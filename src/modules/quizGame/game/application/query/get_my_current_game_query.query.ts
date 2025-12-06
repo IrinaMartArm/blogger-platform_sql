@@ -19,18 +19,9 @@ export class GetMyCurrentGameQueryHandler
   ) {}
 
   async execute({ userId }: GetMyCurrentGameQuery): Promise<GameViewDto> {
-    const player = await this.playerRepo.findPlayer(userId);
+    const activeGame = await this.gameRepo.findGameByPlayer(userId);
 
-    if (!player) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'game not found',
-      });
-    }
-
-    const activeGame = await this.gameRepo.getGame(player.id);
-
-    if (!activeGame || !activeGame.secondPlayerProgress) {
+    if (!activeGame) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'No active pair for current user',

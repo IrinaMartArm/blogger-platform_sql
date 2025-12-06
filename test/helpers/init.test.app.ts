@@ -10,6 +10,7 @@ import { TestingController } from '../../src/modules/testing/testing.controller'
 import { QuizGameModule } from '../../src/modules/quizGame/quizGame.module';
 import { GameTestManager } from './gameTestManager';
 import { pipesSetup } from '../../src/setup/pipes.setup';
+import { DomainHttpExceptionsFilter } from '../../src/core/filters/domain-exception-filter';
 
 export const getInitApp = async () => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -34,7 +35,7 @@ export const getInitApp = async () => {
           {
             name: 'short',
             ttl: 10000,
-            limit: 5,
+            limit: 55,
           },
         ],
       }),
@@ -46,6 +47,7 @@ export const getInitApp = async () => {
 
   const app = moduleFixture.createNestApplication();
   pipesSetup(app);
+  app.useGlobalFilters(new DomainHttpExceptionsFilter());
   await app.init();
   // await app.listen(0); // ← обязательно!
   const userTestManger = new UsersTestManager(app);

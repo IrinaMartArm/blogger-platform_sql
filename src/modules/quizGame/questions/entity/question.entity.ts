@@ -5,10 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import {
-  AnswerInputDto,
-  QuestionsInputDto,
-} from '../api/input-dto/question.input-dto';
+import { QuestionsInputDto } from '../api/input-dto/question.input-dto';
 
 @Entity('questions')
 export class Question {
@@ -19,7 +16,7 @@ export class Question {
   body: string;
 
   @Column({ type: 'jsonb', nullable: false })
-  correctAnswers: Record<string, string>;
+  correctAnswers: string[];
 
   @Column({ type: 'boolean', default: false })
   published: boolean;
@@ -27,38 +24,31 @@ export class Question {
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz', nullable: true })
+  @UpdateDateColumn({ type: 'timestamptz', nullable: true, default: null })
   updatedAt: Date | null;
 
   static create(dto: QuestionsInputDto): Question {
     const question = new Question();
     question.body = dto.body.trim();
-    question.correctAnswers = dto.correctAnswers.reduce(
-      (acc, answer, index) => {
-        const key = String.fromCharCode(65 + index); // A, B, C, D...
-        acc[key] = answer.trim();
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
+    question.correctAnswers = dto.correctAnswers.map((a) => a.trim());
+    question.updatedAt = null;
     return question;
   }
 
   update(dto: QuestionsInputDto) {
     this.body = dto.body;
-    this.correctAnswers = dto.correctAnswers.reduce(
-      (acc, answer, index) => {
-        const key = String.fromCharCode(65 + index); // A, B, C, D...
-        acc[key] = answer.trim();
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
+    this.correctAnswers = dto.correctAnswers.map((a) => a.trim());
+    // this.correctAnswers = dto.correctAnswers.reduce(
+    //   (acc, answer, index) => {
+    //     const key = String.fromCharCode(65 + index); // A, B, C, D...
+    //     acc[key] = answer.trim();
+    //     return acc;
+    //   },
+    //   {} as Record<string, string>,
+    // );
   }
 
   changePublished(isPublished: boolean) {
     this.published = isPublished;
   }
-
-  checkAnswers(dto: AnswerInputDto) {}
 }

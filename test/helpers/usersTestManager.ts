@@ -55,8 +55,8 @@ export class UsersTestManager {
       .expect(200);
   }
 
-  async createAndLoginUser(): Promise<Response> {
-    await this.createUser();
-    return await this.login({ loginOrEmail: login, password });
+  async createAndLoginUser(dto?: CreateUserInputDto): Promise<Response> {
+    await this.createUser(dto);
+    return await this.login({ loginOrEmail: dto?.login ?? login, password });
   }
 }

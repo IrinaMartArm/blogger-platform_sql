@@ -1,4 +1,5 @@
 import { Game } from '../../entity/game.entity';
+import { AnswerEntity } from '../../../answer/entity/answer.entity';
 
 export class GameViewDto {
   id: string;
@@ -15,7 +16,12 @@ export class GameViewDto {
     dto.id = game.id.toString();
     dto.firstPlayerProgress = {
       score: game.firstPlayerProgress.score,
-      answers: [],
+      answers: game.firstPlayerProgress.answers.map((a) =>
+        AnswerResultViewDto.mapToView(a),
+      ),
+      // answers: [...game.firstPlayerProgress.answers]
+      //   .sort((a, b) => a.addedAt.getTime() - b.addedAt.getTime())
+      //   .map((e) => AnswerResultViewDto.mapToView(e)),
       player: {
         id: game.firstPlayerProgress.userId.toString(),
         login: game.firstPlayerProgress.player.login,
@@ -27,7 +33,13 @@ export class GameViewDto {
             id: game.secondPlayerProgress.userId.toString(),
             login: game.secondPlayerProgress.player.login,
           },
-          answers: [],
+          // answers: [...game.secondPlayerProgress.answers]
+          //   .sort((a, b) => a.addedAt.getTime() - b.addedAt.getTime())
+          //   .map((e) => AnswerResultViewDto.mapToView(e)),
+
+          answers: game.secondPlayerProgress.answers?.map((a) =>
+            AnswerResultViewDto.mapToView(a),
+          ),
           score: game.secondPlayerProgress.score,
         }
       : null;
@@ -42,19 +54,13 @@ export class GameViewDto {
   }
 }
 
-export type Answers = {
-  questionId: string;
-  answerStatus: string;
-  addedAt: string;
-};
-
 export type Player = {
   id: string;
   login: string;
 };
 
 export type PlayerProgressDto = {
-  answers: Answers[];
+  answers: AnswerResultViewDto[];
   player: Player;
   score: number;
 };
@@ -68,4 +74,23 @@ export enum GameStatus {
   PendingSecondPlayer = 'PendingSecondPlayer',
   Active = 'Active',
   Finished = 'Finished',
+}
+
+export enum AnswerStatus {
+  Correct = 'Correct',
+  Incorrect = 'Incorrect',
+}
+
+export class AnswerResultViewDto {
+  questionId: string;
+  answerStatus: AnswerStatus;
+  addedAt: string;
+
+  static mapToView(answer: AnswerEntity) {
+    const dto = new AnswerResultViewDto();
+    dto.questionId = answer.questionId.toString();
+    dto.answerStatus = answer.answerStatus;
+    dto.addedAt = answer.addedAt.toISOString();
+    return dto;
+  }
 }

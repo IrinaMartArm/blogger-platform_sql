@@ -1,7 +1,6 @@
 import * as process from 'node:process';
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
-import * as path from 'path';
 
 // config({ path: path.resolve(__dirname, '../../env/.env.development') });
 config({ path: 'src/env/.env.development' });

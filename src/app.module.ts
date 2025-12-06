@@ -28,7 +28,7 @@ import { QuizGameModule } from './modules/quizGame/quizGame.module';
         {
           name: 'short',
           ttl: 10000, // 10 секунд в миллисекундах / 1000 → это 1 секунда
-          limit: 5,
+          limit: 95,
         },
       ],
     }),

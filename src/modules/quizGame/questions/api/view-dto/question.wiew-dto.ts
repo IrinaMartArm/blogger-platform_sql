@@ -19,9 +19,3 @@ export class QuestionsViewDto {
     return dto;
   }
 }
-
-export type AnswerViewDto = {
-  questionId: string;
-  answerStatus: string;
-  addedAt: string;
-};

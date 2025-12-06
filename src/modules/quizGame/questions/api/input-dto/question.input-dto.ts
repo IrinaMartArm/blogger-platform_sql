@@ -29,3 +29,8 @@ export class PublishInputDto {
   @IsBoolean()
   published: boolean;
 }
+
+export class SendAnswerInputDto {
+  @IsStringWithTrim(1, 50)
+  answer: string;
+}

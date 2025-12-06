@@ -19,10 +19,12 @@ export class QuestionsRepository extends TransactionalRepository<Question> {
       .getOne();
   }
 
-  async getQuestions(): Promise<Question[]> {
+  async getQuestions(limit: number = 5): Promise<Question[]> {
     return await this.dataSource
       .createQueryBuilder(Question, 'q')
-      // .take(10)
+      .where('q.published = true')
+      .orderBy('RANDOM()')
+      .limit(limit)
       .getMany();
   }
 

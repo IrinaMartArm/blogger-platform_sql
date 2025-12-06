@@ -22,7 +22,13 @@ export class ObjectIdValidationPipe implements PipeTransform {
       return new Types.ObjectId(value);
     }
 
-    // Если тип не ObjectId, возвращаем значение без изменений
+    if (isNaN(Number(value))) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: `Invalid id`,
+      });
+    }
+
     return Number(value);
   }
 }
