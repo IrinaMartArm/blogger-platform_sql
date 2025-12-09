@@ -23,6 +23,12 @@ import { PlayersQueryRepository } from './player/infrastructure/players.query-re
 import { SendAnswerCommandHandler } from './game/application/commands/send_answer.use-case';
 import { GetAnswerQueryHandler } from './game/application/query/get_answer.query';
 import { AnswerEntity } from './answer/entity/answer.entity';
+import {
+  GetStatisticQuery,
+  GetStatisticQueryHandler,
+} from './game/application/query/get_statistic.query';
+import { GetMyGamesQueryHandler } from './game/application/query/get_my_games.query';
+import { GetTopPlayersQueryHandler } from './game/application/query/get_top.query';
 
 const queries = [
   GetGameQueryHandler,
@@ -30,6 +36,10 @@ const queries = [
   GetQuestionQueryHandler,
   GetQuestionsQueryHandler,
   GetAnswerQueryHandler,
+  GetStatisticQueryHandler,
+  GetMyGamesQueryHandler,
+  GetStatisticQueryHandler,
+  GetTopPlayersQueryHandler,
 ];
 const commands = [
   ConnectGameCommandHandler,

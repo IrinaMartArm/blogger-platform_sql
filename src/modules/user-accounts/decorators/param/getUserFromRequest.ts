@@ -8,6 +8,7 @@ export const GetUserFromRequest = createParamDecorator(
     const request: Request = context.switchToHttp().getRequest();
 
     const user = request.user;
+
     if (!user) {
       return null;
     }

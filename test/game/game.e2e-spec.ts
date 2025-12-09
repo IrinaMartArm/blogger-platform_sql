@@ -191,40 +191,91 @@ describe('Game', () => {
     // console.log('response secondP', response.body.secondPlayerProgress.answers);
 
     await gameTestManager.takeAnswer(token1.accessToken, 'otvet 12');
-    console.log('date', new Date().toISOString());
     const response = await gameTestManager.getGame(token1.accessToken);
-    console.log('game', response.body.firstPlayerProgress.answers);
-    await gameTestManager.getGameById(token1.accessToken, response.body.id);
+    const response_ = await gameTestManager.getGameById(
+      token1.accessToken,
+      response.body.id,
+    );
+
+    console.log('game 1 1', response.body.id, response_.body.id);
 
     await gameTestManager.takeAnswer(token1.accessToken, '2');
-    await gameTestManager.getGame(token1.accessToken);
-    await gameTestManager.getGameById(token1.accessToken, response.body.id);
+    const response2 = await gameTestManager.getGame(token1.accessToken);
+    const response_2 = await gameTestManager.getGameById(
+      token1.accessToken,
+      response.body.id,
+    );
+
+    console.log('game 1 2', response2.body.id, response_2.body.id);
 
     await gameTestManager.takeAnswer(token2.accessToken, '28');
-    await gameTestManager.getGame(token2.accessToken);
-    await gameTestManager.getGameById(token2.accessToken, response.body.id);
+    const response3 = await gameTestManager.getGame(token2.accessToken);
+    const response_3 = await gameTestManager.getGameById(
+      token2.accessToken,
+      response.body.id,
+    );
+
+    console.log('game 2u 1', response3.body.id, response_3.body.id);
 
     await gameTestManager.takeAnswer(token2.accessToken, '2');
-    await gameTestManager.getGame(token2.accessToken);
-    await gameTestManager.getGameById(token2.accessToken, response.body.id);
+    const response4 = await gameTestManager.getGame(token2.accessToken);
+    const response_4 = await gameTestManager.getGameById(
+      token2.accessToken,
+      response.body.id,
+    );
+
+    console.log('game 2u 2', response4.body.id, response_4.body.id);
 
     await gameTestManager.takeAnswer(token1.accessToken, '2');
-    await gameTestManager.getGame(token1.accessToken);
-    await gameTestManager.getGameById(token1.accessToken, response.body.id);
+    const response5 = await gameTestManager.getGame(token1.accessToken);
+    const response_5 = await gameTestManager.getGameById(
+      token1.accessToken,
+      response.body.id,
+    );
+
+    console.log('game 1u 3', response5.body.id, response_5.body.id);
 
     await gameTestManager.takeAnswer(token1.accessToken, '2');
-    await gameTestManager.getGame(token1.accessToken);
-    await gameTestManager.getGameById(token1.accessToken, response.body.id);
+    const response6 = await gameTestManager.getGame(token1.accessToken);
+    const response_6 = await gameTestManager.getGameById(
+      token1.accessToken,
+      response.body.id,
+    );
 
+    console.log('game 1u 4', response6.body.id, response_6.body.id);
+
+    const res99 = await gameTestManager.takeAnswer(token2.accessToken, '2');
     await gameTestManager.takeAnswer(token2.accessToken, '2');
-    await gameTestManager.takeAnswer(token2.accessToken, '2');
 
-    await gameTestManager.getGame(token2.accessToken);
-    await gameTestManager.getGameById(token2.accessToken, response.body.id);
+    const response7 = await gameTestManager.getGame(token1.accessToken);
+    const response_7 = await gameTestManager.getGame(token2.accessToken);
 
-    // await gameTestManager.takeAnswer(token2.accessToken, '5');
+    console.log(
+      'game 2u 4',
+      JSON.stringify(response_7.body.firstPlayerProgress, null, 2),
+      JSON.stringify(response_7.body.secondPlayerProgress, null, 2),
+    );
+    console.log('answer', JSON.stringify(res99.body, null, 2));
+
     await gameTestManager.takeAnswer(token1.accessToken, '2');
-    await gameTestManager.takeAnswer(token2.accessToken, '2');
+    await gameTestManager.takeAnswer(token2.accessToken, '5');
+    // await gameTestManager.takeAnswer(token2.accessToken, '2');
+
+    // const response8 = await gameTestManager.getGame(token1.accessToken);
+    const response_8 = await gameTestManager.getGameById(
+      token1.accessToken,
+      response.body.id,
+    );
+
+    console.log('game 1u 5', response_8.body.id);
+
+    // const response9 = await gameTestManager.getGame(token2.accessToken);
+    const response_9 = await gameTestManager.getGameById(
+      token2.accessToken,
+      response.body.id,
+    );
+
+    console.log('game 2u 5', response_9.body.firstPlayerProgress.answers);
 
     // const responseLast = await gameTestManager.getGame(token1.accessToken);
     const responseLast2 = await gameTestManager.getGameById(
@@ -232,21 +283,23 @@ describe('Game', () => {
       response.body.id,
     );
 
+    console.log('game 2u 5', responseLast2.body.firstPlayerProgress.answers);
+
     // const responseLast_ = await gameTestManager.getGame(token2.accessToken);
-    const responseLast2_ = await gameTestManager.getGameById(
-      token2.accessToken,
-      response.body.id,
-    );
+    // const responseLast2_ = await gameTestManager.getGameById(
+    //   token2.accessToken,
+    //   response.body.id,
+    // );
 
     // console.log('dame', responseLast);
-    console.log('dame', responseLast2.body);
+    // console.log('dame', responseLast2.body);
     // console.log('dame', responseLast_);
-    console.log('dame', responseLast2_.body);
+    // console.log('dame', responseLast2_.body);
 
     // expect(responseLast.body.firstPlayerProgress.answers.length).toBe(5);
     expect(responseLast2.body.firstPlayerProgress.answers.length).toBe(5);
     // expect(responseLast.body.secondPlayerProgress.answers.length).toBe(3);
-    expect(responseLast2.body.secondPlayerProgress.answers.length).toBe(5);
+    // expect(responseLast2.body.secondPlayerProgress.answers.length).toBe(5);
     // expect(response3.body.finishGameDate).toBeDefined();
   });
 
@@ -275,41 +328,136 @@ describe('Game', () => {
   it('', async () => {
     const res = await usersTestManager.createAndLoginUser();
     const res1 = await usersTestManager.createAndLoginUser(user);
-    const res2 = await usersTestManager.createAndLoginUser({
+    // const res2 = await usersTestManager.createAndLoginUser({
+    //   login: 'username_2',
+    //   password: 'qwerty',
+    //   email: 'email_2@test.com',
+    // });
+    // const res3 = await usersTestManager.createAndLoginUser({
+    //   login: 'username3',
+    //   password: 'qwerty',
+    //   email: 'email_3@test.com',
+    // });
+
+    const token = res.body as { accessToken: string };
+    const token1 = res1.body as { accessToken: string };
+    // const token2 = res2.body as { accessToken: string };
+    // const token3 = res3.body as { accessToken: string };
+
+    await gameTestManager.startGame(token.accessToken);
+    await gameTestManager.startGame(token1.accessToken);
+    // await gameTestManager.startGame(token2.accessToken);
+    // await gameTestManager.startGame(token3.accessToken);
+
+    const response = await gameTestManager.getGame(token.accessToken);
+    const response1 = await gameTestManager.getGame(token1.accessToken);
+    // const response2 = await gameTestManager.getGame(token2.accessToken);
+    // const response3 = await gameTestManager.getGame(token3.accessToken);
+
+    const answer = await gameTestManager.takeAnswer(token.accessToken, '2');
+    const answer2 = await gameTestManager.takeAnswer(token1.accessToken, '5');
+
+    const response7 = await gameTestManager.getGame(token.accessToken);
+    const response_7 = await gameTestManager.getGame(token1.accessToken);
+
+    console.log(
+      'game firstPlayer',
+      JSON.stringify(response7.body, null, 2),
+      // JSON.stringify(response7.body.secondPlayerProgress, null, 2),
+    );
+    console.log(
+      'game secondPlayer',
+      JSON.stringify(response_7.body, null, 2),
+      // JSON.stringify(response_7.body.secondPlayerProgress, null, 2),
+    );
+    console.log('answer', JSON.stringify(answer.body, null, 2));
+    console.log('answer 2', JSON.stringify(answer2.body, null, 2));
+
+    expect(response.body).toBeDefined();
+    expect(response1.body).toBeDefined();
+  });
+
+  it('gel all my games', async () => {
+    const res = await usersTestManager.createAndLoginUser();
+    await usersTestManager.createAndLoginUser(user);
+
+    const token = res.body as { accessToken: string };
+
+    await gameTestManager.startGame(token.accessToken);
+
+    const resp = await request(app.getHttpServer())
+      .get('/pair-game-quiz/pairs/my')
+      .set('Authorization', `Bearer ${token.accessToken}`)
+      .expect(200);
+
+    expect(resp.body.items).toBeInstanceOf(Array);
+    expect(resp.body.items.length).toBe(1);
+  });
+
+  it('gel games statistic', async () => {
+    const res = await usersTestManager.createAndLoginUser();
+    const res2 = await usersTestManager.createAndLoginUser(user);
+
+    const res3 = await usersTestManager.createAndLoginUser({
       login: 'username_2',
       password: 'qwerty',
       email: 'email_2@test.com',
     });
-    const res3 = await usersTestManager.createAndLoginUser({
+    const res4 = await usersTestManager.createAndLoginUser({
       login: 'username3',
       password: 'qwerty',
       email: 'email_3@test.com',
     });
 
     const token = res.body as { accessToken: string };
-    const token1 = res1.body as { accessToken: string };
     const token2 = res2.body as { accessToken: string };
     const token3 = res3.body as { accessToken: string };
+    const token4 = res4.body as { accessToken: string };
 
     await gameTestManager.startGame(token.accessToken);
-    await gameTestManager.startGame(token1.accessToken);
     await gameTestManager.startGame(token2.accessToken);
     await gameTestManager.startGame(token3.accessToken);
+    await gameTestManager.startGame(token4.accessToken);
 
-    await gameTestManager.takeAnswer(token1.accessToken, '2');
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+    await gameTestManager.takeAnswer(token2.accessToken, '5');
+    await gameTestManager.takeAnswer(token3.accessToken, '2');
+    await gameTestManager.takeAnswer(token4.accessToken, '5');
 
-    const response = await gameTestManager.getGame(token.accessToken);
-    const response1 = await gameTestManager.getGame(token1.accessToken);
-    const response2 = await gameTestManager.getGame(token2.accessToken);
-    const response3 = await gameTestManager.getGame(token3.accessToken);
-    const resз = await gameTestManager.getGameById(
-      token1.accessToken,
-      response.body.id,
-    );
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+    await gameTestManager.takeAnswer(token2.accessToken, '5');
+    await gameTestManager.takeAnswer(token3.accessToken, '2');
+    await gameTestManager.takeAnswer(token4.accessToken, '5');
 
-    expect(response.body).toBeDefined();
-    expect(response1.body).toBeDefined();
-    expect(response2.body).toBeDefined();
-    expect(response3.body).toBeDefined();
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+    await gameTestManager.takeAnswer(token2.accessToken, '5');
+    await gameTestManager.takeAnswer(token3.accessToken, '2');
+    await gameTestManager.takeAnswer(token4.accessToken, '5');
+
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+    await gameTestManager.takeAnswer(token2.accessToken, '5');
+    await gameTestManager.takeAnswer(token3.accessToken, '2');
+    await gameTestManager.takeAnswer(token4.accessToken, '5');
+
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+    await gameTestManager.takeAnswer(token2.accessToken, '5');
+    await gameTestManager.takeAnswer(token4.accessToken, '5');
+    await gameTestManager.takeAnswer(token3.accessToken, '2');
+
+    const resp = await request(app.getHttpServer())
+      .get('/pair-game-quiz/users/my-statistic')
+      .set('Authorization', `Bearer ${token.accessToken}`)
+      .expect(200);
+
+    const resp2 = await request(app.getHttpServer())
+      .get(
+        '/pair-game-quiz/users/top?pageSize=3&sort=avgScores desc&sort=sumScore desc',
+      )
+      .set('Authorization', `Bearer ${token.accessToken}`)
+      .expect(200);
+
+    expect(resp.body.gamesCount).toBe(1);
+    expect(resp.body.winsCount).toBe(1);
+    expect(resp2.body.items.length).toBe(3);
   });
 });

@@ -7,7 +7,10 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AnswerStatus, GameStatus } from '../api/view-dto/game.view-dto';
-import { PlayerProgress } from '../../player/entity/player.entity';
+import {
+  GameResultStatus,
+  PlayerProgress,
+} from '../../player/entity/player.entity';
 import { Question } from '../../questions/entity/question.entity';
 import { AnswerEntity } from '../../answer/entity/answer.entity';
 
@@ -128,6 +131,17 @@ export class Game {
         currentPlayer.score += 1;
       } else if (currentLastTime > opponentLastTime && opponent.score > 0) {
         opponent.score += 1;
+      }
+
+      if (currentPlayer.score > opponent.score) {
+        currentPlayer.resultStatus = GameResultStatus.WIN;
+        opponent.resultStatus = GameResultStatus.LOSS;
+      } else if (currentPlayer.score < opponent.score) {
+        currentPlayer.resultStatus = GameResultStatus.LOSS;
+        opponent.resultStatus = GameResultStatus.WIN;
+      } else if (currentPlayer.score === opponent.score) {
+        currentPlayer.resultStatus = GameResultStatus.DRAW;
+        opponent.resultStatus = GameResultStatus.DRAW;
       }
 
       this.status = GameStatus.Finished;

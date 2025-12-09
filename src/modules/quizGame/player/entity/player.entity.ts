@@ -11,6 +11,12 @@ import {
 import { User } from '../../../user-accounts/user/entity/user.entity';
 import { AnswerEntity } from '../../answer/entity/answer.entity';
 
+export enum GameResultStatus {
+  WIN = 'WIN',
+  LOSS = 'LOSS',
+  DRAW = 'DRAW',
+}
+
 @Entity('players')
 export class PlayerProgress {
   @PrimaryGeneratedColumn()
@@ -18,6 +24,9 @@ export class PlayerProgress {
 
   @Column({ type: 'int', default: 0 })
   score: number;
+
+  @Column({ type: 'enum', enum: GameResultStatus, nullable: true })
+  resultStatus: GameResultStatus | null;
 
   @Index()
   @Column({ type: 'int', nullable: false })

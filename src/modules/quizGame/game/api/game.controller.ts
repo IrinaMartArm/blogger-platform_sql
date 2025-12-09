@@ -7,12 +7,18 @@ import {
   Get,
   Param,
   Body,
+  Query,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/jwt-auth.guard';
 import { GetUserFromRequest } from '../../../user-accounts/decorators/param/getUserFromRequest';
 import { UserContextDto } from '../../../user-accounts/dto/user-context.dto';
-import { AnswerResultViewDto, GameViewDto } from './view-dto/game.view-dto';
+import {
+  AnswerResultViewDto,
+  GamesStatisticViewDto,
+  GameViewDto,
+  TopPlayersViewDto,
+} from './view-dto/game.view-dto';
 import { GetGameByIdQuery } from '../application/query/get_game_by_id.query';
 import { ConnectGameCommand } from '../application/commands/connect_game.use-case';
 import { GetMyCurrentGameQuery } from '../application/query/get_my_current_game_query.query';
@@ -20,15 +26,23 @@ import { ObjectIdValidationPipe } from '../../../../core/pipes/objectId-validati
 import { SendAnswerInputDto } from '../../questions/api/input-dto/question.input-dto';
 import { SendAnswerCommand } from '../application/commands/send_answer.use-case';
 import { GetAnswerQuery } from '../application/query/get_answer.query';
+import { GetStatisticQuery } from '../application/query/get_statistic.query';
+import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
+import { GetMyGamesQuery } from '../application/query/get_my_games.query';
+import {
+  GetGamesQueryParams,
+  GetTopQueryParams,
+} from './input-dto/game_query_params';
+import { GetTopPlayersQuery } from '../application/query/get_top.query';
 
-@Controller('pair-game-quiz/pairs')
+@Controller('pair-game-quiz')
 export class GameController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
-  @Get('my-current')
+  @Get('pairs/my-current')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getGame(
@@ -39,7 +53,39 @@ export class GameController {
     );
   }
 
-  @Get(':id')
+  @Get('users/my-statistic')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getStatistic(
+    @GetUserFromRequest() user: UserContextDto,
+  ): Promise<GamesStatisticViewDto> {
+    console.log('statistic');
+    return this.queryBus.execute(
+      new GetStatisticQuery(Number(user.currentUserId)),
+    );
+  }
+
+  @Get('users/top')
+  @HttpCode(HttpStatus.OK)
+  async getTop(
+    @Query() query: GetTopQueryParams,
+  ): Promise<PaginatedViewDto<TopPlayersViewDto[]>> {
+    return this.queryBus.execute(new GetTopPlayersQuery(query));
+  }
+
+  @Get('pairs/my')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getAllMyGames(
+    @Query() query: GetGamesQueryParams,
+    @GetUserFromRequest() user: UserContextDto,
+  ): Promise<PaginatedViewDto<GameViewDto[]>> {
+    return this.queryBus.execute(
+      new GetMyGamesQuery(Number(user.currentUserId), query),
+    );
+  }
+
+  @Get('pairs/:id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getGameById(
@@ -51,7 +97,7 @@ export class GameController {
     );
   }
 
-  @Post('connection')
+  @Post('pairs/connection')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async startGame(
@@ -65,27 +111,23 @@ export class GameController {
     );
   }
 
-  @Post('my-current/answers')
+  @Post('pairs/my-current/answers')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async sendAnswer(
     @Body() body: SendAnswerInputDto,
     @GetUserFromRequest() user: UserContextDto,
   ): Promise<AnswerResultViewDto> {
-    const result: { answerId: number } = await this.commandBus.execute(
-      new SendAnswerCommand(Number(user.currentUserId), body.answer),
-    );
+    const result: { answerId: number; gameId: number } =
+      await this.commandBus.execute(
+        new SendAnswerCommand(Number(user.currentUserId), body.answer),
+      );
     return this.queryBus.execute(
-      new GetAnswerQuery(Number(user.currentUserId), result.answerId),
-    );
-  }
-
-  @Get('my-statistic')
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  async getStatistic(@GetUserFromRequest() user: UserContextDto): Promise<any> {
-    return this.queryBus.execute(
-      new GetStatisticQuery(Number(user.currentUserId)),
+      new GetAnswerQuery(
+        Number(user.currentUserId),
+        result.gameId,
+        result.answerId,
+      ),
     );
   }
 }

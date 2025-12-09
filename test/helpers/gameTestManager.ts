@@ -3,6 +3,7 @@ import * as request from 'supertest';
 import { generateBasicAuthToken } from './usersTestManager';
 import { INestApplication } from '@nestjs/common';
 import { Response } from 'supertest';
+import { CreateUserDto } from '../../src/modules/user-accounts/dto/create-user.dto';
 
 export class GameTestManager {
   constructor(private app: INestApplication) {}

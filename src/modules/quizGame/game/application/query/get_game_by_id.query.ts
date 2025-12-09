@@ -18,6 +18,8 @@ export class GetGameQueryHandler implements IQueryHandler<GetGameByIdQuery> {
   async execute({ gameId, userId }: GetGameByIdQuery): Promise<GameViewDto> {
     const result = await this.gameRepo.getGame(gameId);
 
+    // console.log('GetGameByIdQuery', result?.id);
+
     if (!result) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,

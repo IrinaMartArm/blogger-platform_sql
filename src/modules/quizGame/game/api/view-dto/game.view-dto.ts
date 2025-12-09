@@ -1,5 +1,17 @@
 import { Game } from '../../entity/game.entity';
 import { AnswerEntity } from '../../../answer/entity/answer.entity';
+import { TopPlayersDto } from '../../../player/infrastructure/players.query-repository';
+
+export enum GameStatus {
+  PendingSecondPlayer = 'PendingSecondPlayer',
+  Active = 'Active',
+  Finished = 'Finished',
+}
+
+export enum AnswerStatus {
+  Correct = 'Correct',
+  Incorrect = 'Incorrect',
+}
 
 export class GameViewDto {
   id: string;
@@ -19,9 +31,6 @@ export class GameViewDto {
       answers: game.firstPlayerProgress.answers.map((a) =>
         AnswerResultViewDto.mapToView(a),
       ),
-      // answers: [...game.firstPlayerProgress.answers]
-      //   .sort((a, b) => a.addedAt.getTime() - b.addedAt.getTime())
-      //   .map((e) => AnswerResultViewDto.mapToView(e)),
       player: {
         id: game.firstPlayerProgress.userId.toString(),
         login: game.firstPlayerProgress.player.login,
@@ -33,10 +42,6 @@ export class GameViewDto {
             id: game.secondPlayerProgress.userId.toString(),
             login: game.secondPlayerProgress.player.login,
           },
-          // answers: [...game.secondPlayerProgress.answers]
-          //   .sort((a, b) => a.addedAt.getTime() - b.addedAt.getTime())
-          //   .map((e) => AnswerResultViewDto.mapToView(e)),
-
           answers: game.secondPlayerProgress.answers?.map((a) =>
             AnswerResultViewDto.mapToView(a),
           ),
@@ -70,27 +75,43 @@ export type Questions = {
   body: string;
 };
 
-export enum GameStatus {
-  PendingSecondPlayer = 'PendingSecondPlayer',
-  Active = 'Active',
-  Finished = 'Finished',
-}
-
-export enum AnswerStatus {
-  Correct = 'Correct',
-  Incorrect = 'Incorrect',
-}
-
 export class AnswerResultViewDto {
-  questionId: string;
-  answerStatus: AnswerStatus;
   addedAt: string;
+  answerStatus: AnswerStatus;
+  questionId: string;
 
   static mapToView(answer: AnswerEntity) {
     const dto = new AnswerResultViewDto();
     dto.questionId = answer.questionId.toString();
     dto.answerStatus = answer.answerStatus;
     dto.addedAt = answer.addedAt.toISOString();
+    return dto;
+  }
+}
+
+export class GamesStatisticViewDto {
+  sumScore: number;
+  avgScores: number;
+  gamesCount: number;
+  winsCount: number;
+  lossesCount: number;
+  drawsCount: number;
+}
+
+export class TopPlayersViewDto extends GamesStatisticViewDto {
+  player: Player;
+
+  static mapToView(data: TopPlayersDto): TopPlayersViewDto {
+    const dto = new TopPlayersViewDto();
+
+    dto.player = { id: data.id.toString(), login: data.login };
+    dto.drawsCount = data.drawsCount;
+    dto.gamesCount = data.gamesCount;
+    dto.winsCount = data.winsCount;
+    dto.lossesCount = data.lossesCount;
+    dto.sumScore = data.sumScore;
+    dto.avgScores = Number(data.avgScores);
+
     return dto;
   }
 }

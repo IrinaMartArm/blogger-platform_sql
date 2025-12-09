@@ -43,7 +43,7 @@ export class SendAnswerCommandHandler
       }
 
       await gameRepo.save(game);
-      return { answerId: result.questionId };
+      return { answerId: result.id, gameId: game.id };
     });
   }
 }

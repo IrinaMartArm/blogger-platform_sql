@@ -19,40 +19,21 @@ export class GameRepository extends TransactionalRepository<Game> {
   }
 
   async findActiveGameByUserId(userId: number) {
-    return this.repo
-      .createQueryBuilder('game')
-      .setLock('pessimistic_write', undefined, ['game'])
-      .innerJoinAndSelect('game.firstPlayerProgress', 'first')
-      .leftJoinAndSelect('game.secondPlayerProgress', 'second')
-      .leftJoinAndSelect('first.answers', 'fa')
-      .leftJoinAndSelect('second.answers', 'sa')
-      .where('game.status = :status', { status: GameStatus.Active })
-      .andWhere('(first.userId = :userId OR second.userId = :userId)', {
-        userId,
-      })
-      .orderBy('fa.addedAt', 'ASC')
-      .addOrderBy('sa.addedAt', 'ASC')
-      .getOne();
-  }
-
-  async findActiveGameByPlayer(id: number) {
     return (
       this.repo
         .createQueryBuilder('game')
         // .setLock('pessimistic_write')
-        .innerJoinAndSelect('game.firstPlayerProgress', 'first')
-        .innerJoinAndSelect('game.secondPlayerProgress', 'second')
+        .setLock('pessimistic_write', undefined, ['game'])
+        .leftJoinAndSelect('game.firstPlayerProgress', 'first')
+        .leftJoinAndSelect('game.secondPlayerProgress', 'second')
         .leftJoinAndSelect('first.answers', 'fa')
         .leftJoinAndSelect('second.answers', 'sa')
         .where('game.status = :status', { status: GameStatus.Active })
-        .andWhere(
-          '(game.firstPlayerProgressId = :id OR game.secondPlayerProgressId = :id)',
-          {
-            id,
-          },
-        )
-        .orderBy('fa.id', 'ASC')
-        .addOrderBy('sa.id', 'ASC')
+        .andWhere('(first.userId = :userId OR second.userId = :userId)', {
+          userId,
+        })
+        .orderBy('fa.addedAt', 'ASC')
+        .addOrderBy('sa.addedAt', 'ASC')
         .getOne()
     );
   }
