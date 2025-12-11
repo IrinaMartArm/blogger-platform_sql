@@ -14,6 +14,8 @@ import {
 import { Question } from '../../questions/entity/question.entity';
 import { AnswerEntity } from '../../answer/entity/answer.entity';
 
+const TOTAL_QUESTIONS = 5;
+
 @Entity('games')
 export class Game {
   @PrimaryGeneratedColumn()
@@ -44,6 +46,9 @@ export class Game {
 
   @Column({ type: 'jsonb', nullable: true, default: null })
   questions: Question[] | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  finishTimeoutJobId: string | null;
 
   @OneToOne(() => PlayerProgress, { onDelete: 'CASCADE', cascade: true })
   @JoinColumn({ name: 'firstPlayerProgressId' }) //владелец связи — тот, у кого есть @JoinColumn()
@@ -91,7 +96,7 @@ export class Game {
         ? this.secondPlayerProgress
         : this.firstPlayerProgress;
 
-    if (currentPlayer.answers.length >= 5) {
+    if (currentPlayer.answers.length >= TOTAL_QUESTIONS) {
       return null;
     }
 
@@ -118,49 +123,71 @@ export class Game {
 
     const currentAnswers = currentPlayer.answers.length;
     const opponentAnswers = opponent.answers.length;
-    const totalQuestions = 5;
 
-    const currentFinished = currentAnswers === totalQuestions;
-    const opponentFinished = opponentAnswers === totalQuestions;
+    const currentFinished = currentAnswers === TOTAL_QUESTIONS;
+    const opponentFinished = opponentAnswers === TOTAL_QUESTIONS;
 
     if (currentFinished && opponentFinished) {
-      const currentLastTime = currentPlayer.answers[4].addedAt;
-      const opponentLastTime = opponent.answers[4].addedAt;
-
-      if (currentLastTime < opponentLastTime && currentPlayer.score > 0) {
-        currentPlayer.score += 1;
-      } else if (currentLastTime > opponentLastTime && opponent.score > 0) {
-        opponent.score += 1;
-      }
-
-      if (currentPlayer.score > opponent.score) {
-        currentPlayer.resultStatus = GameResultStatus.WIN;
-        opponent.resultStatus = GameResultStatus.LOSS;
-      } else if (currentPlayer.score < opponent.score) {
-        currentPlayer.resultStatus = GameResultStatus.LOSS;
-        opponent.resultStatus = GameResultStatus.WIN;
-      } else if (currentPlayer.score === opponent.score) {
-        currentPlayer.resultStatus = GameResultStatus.DRAW;
-        opponent.resultStatus = GameResultStatus.DRAW;
-      }
-
-      this.status = GameStatus.Finished;
-      this.finishGameDate = new Date();
+      this.countPoints();
     }
     return answerResult;
   }
 
-  // finishGame() {
-  //   if (currentFinished && !opponentFinished) {
-  //     const diff = Date.now() - currentPlayer.answers[4].addedAt.getTime();
-  //
-  //     const TIMEOUT = 30 * 60 * 1000;
-  //
-  //     if (diff > TIMEOUT) {
-  //       currentPlayer.score += 1;
-  //       this.status = GameStatus.Finished;
-  //       this.finishGameDate = new Date();
-  //     }
-  //   }
-  // }
+  updateJobId(jobId: string) {
+    this.finishTimeoutJobId = jobId;
+  }
+
+  finishGameWithMissingAnswers() {
+    const fp = this.firstPlayerProgress;
+    const sp = this.secondPlayerProgress!;
+
+    console.log('fp, sp', fp, sp);
+
+    for (const pl of [fp, sp]) {
+      while (pl.answers.length < TOTAL_QUESTIONS) {
+        const missingIndex = pl.answers.length;
+        const answerResult = new AnswerEntity();
+        answerResult.answerStatus = AnswerStatus.Incorrect;
+        answerResult.addedAt = new Date();
+        answerResult.questionId = this.questions![missingIndex].id;
+        answerResult.player = pl;
+
+        pl.answers.push(answerResult);
+      }
+    }
+
+    this.countPoints();
+  }
+
+  countPoints() {
+    console.log('countPoints');
+    const first = this.firstPlayerProgress;
+    const second = this.secondPlayerProgress!;
+
+    const fpLastTime = first.answers[4].addedAt;
+    const spLastTime = second.answers[4].addedAt;
+
+    if (fpLastTime < spLastTime && first.score > 0) {
+      first.score += 1;
+    } else if (fpLastTime > spLastTime && second.score > 0) {
+      second.score += 1;
+    }
+
+    if (first.score > second.score) {
+      first.resultStatus = GameResultStatus.WIN;
+      second.resultStatus = GameResultStatus.LOSS;
+    } else if (first.score < second.score) {
+      first.resultStatus = GameResultStatus.LOSS;
+      second.resultStatus = GameResultStatus.WIN;
+    } else if (first.score === second.score) {
+      first.resultStatus = GameResultStatus.DRAW;
+      second.resultStatus = GameResultStatus.DRAW;
+    }
+
+    console.log('FINISHED');
+
+    this.finishTimeoutJobId = null;
+    this.status = GameStatus.Finished;
+    this.finishGameDate = new Date();
+  }
 }

@@ -14,6 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoreConfig } from './core/configs/core.config';
 import { getTypeOrmConfig } from './core/configs/typeorm.moduleOptions.config';
 import { QuizGameModule } from './modules/quizGame/quizGame.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { QuizGameModule } from './modules/quizGame/quizGame.module';
         },
       ],
     }),
+    BullModule.forRoot({ redis: { host: 'localhost', port: 6379 } }),
     UserAccountsModule,
     BloggerModule,
     QuizGameModule,

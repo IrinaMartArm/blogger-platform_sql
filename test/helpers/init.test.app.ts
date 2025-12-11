@@ -11,6 +11,8 @@ import { QuizGameModule } from '../../src/modules/quizGame/quizGame.module';
 import { GameTestManager } from './gameTestManager';
 import { pipesSetup } from '../../src/setup/pipes.setup';
 import { DomainHttpExceptionsFilter } from '../../src/core/filters/domain-exception-filter';
+import { GameFinishProcessor } from '../../src/modules/quizGame/game/application/processors/game-finish.processor';
+import { BullModule } from '@nestjs/bull';
 
 export const getInitApp = async () => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -39,6 +41,9 @@ export const getInitApp = async () => {
           },
         ],
       }),
+      BullModule.forRoot({
+        redis: { host: 'localhost', port: 6379 },
+      }),
       UserAccountsModule,
       QuizGameModule,
     ],
@@ -53,5 +58,5 @@ export const getInitApp = async () => {
   const userTestManger = new UsersTestManager(app);
   const gameTestManager = new GameTestManager(app);
 
-  return { app, userTestManger, gameTestManager };
+  return { app, userTestManger, gameTestManager, moduleFixture };
 };

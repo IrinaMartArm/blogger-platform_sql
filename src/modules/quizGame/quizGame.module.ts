@@ -23,12 +23,11 @@ import { PlayersQueryRepository } from './player/infrastructure/players.query-re
 import { SendAnswerCommandHandler } from './game/application/commands/send_answer.use-case';
 import { GetAnswerQueryHandler } from './game/application/query/get_answer.query';
 import { AnswerEntity } from './answer/entity/answer.entity';
-import {
-  GetStatisticQuery,
-  GetStatisticQueryHandler,
-} from './game/application/query/get_statistic.query';
+import { GetStatisticQueryHandler } from './game/application/query/get_statistic.query';
 import { GetMyGamesQueryHandler } from './game/application/query/get_my_games.query';
 import { GetTopPlayersQueryHandler } from './game/application/query/get_top.query';
+import { BullModule } from '@nestjs/bull';
+import { GameFinishProcessor } from './game/application/processors/game-finish.processor';
 
 const queries = [
   GetGameQueryHandler,
@@ -52,6 +51,7 @@ const commands = [
 
 @Module({
   imports: [
+    BullModule.registerQueue({ name: 'game-finish' }),
     TypeOrmModule.forFeature([Game, PlayerProgress, Question, AnswerEntity]),
   ],
   controllers: [GameController, QuestionsController],
@@ -62,6 +62,7 @@ const commands = [
     PlayersQueryRepository,
     QuestionsRepository,
     QuestionQueryRepository,
+    GameFinishProcessor,
     ...queries,
     ...commands,
   ],

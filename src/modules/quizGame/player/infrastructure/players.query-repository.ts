@@ -77,8 +77,6 @@ export class PlayersQueryRepository {
       .groupBy('u.id')
       .addGroupBy('u.login');
 
-    console.log('sorting', sorting);
-
     sorting.forEach((e) =>
       qb.addOrderBy(`"${e.field}"`, e.direction as 'ASC' | 'DESC'),
     );

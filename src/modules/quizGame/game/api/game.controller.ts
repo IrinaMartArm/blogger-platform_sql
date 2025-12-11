@@ -59,7 +59,6 @@ export class GameController {
   async getStatistic(
     @GetUserFromRequest() user: UserContextDto,
   ): Promise<GamesStatisticViewDto> {
-    console.log('statistic');
     return this.queryBus.execute(
       new GetStatisticQuery(Number(user.currentUserId)),
     );

@@ -11,6 +11,7 @@ import { QuestionsInputDto } from '../../src/modules/quizGame/questions/api/inpu
 import { QuestionsViewDto } from '../../src/modules/quizGame/questions/api/view-dto/question.wiew-dto';
 import { CreateUserDto } from '../../src/modules/user-accounts/dto/create-user.dto';
 import { GameViewDto } from '../../src/modules/quizGame/game/api/view-dto/game.view-dto';
+import { Queue } from 'bull';
 
 const user: CreateUserDto = {
   login: 'username',
@@ -283,8 +284,6 @@ describe('Game', () => {
       response.body.id,
     );
 
-    console.log('game 2u 5', responseLast2.body.firstPlayerProgress.answers);
-
     // const responseLast_ = await gameTestManager.getGame(token2.accessToken);
     // const responseLast2_ = await gameTestManager.getGameById(
     //   token2.accessToken,
@@ -394,7 +393,7 @@ describe('Game', () => {
     expect(resp.body.items.length).toBe(1);
   });
 
-  it('gel games statistic', async () => {
+  it('get games statistic', async () => {
     const res = await usersTestManager.createAndLoginUser();
     const res2 = await usersTestManager.createAndLoginUser(user);
 
@@ -459,5 +458,50 @@ describe('Game', () => {
     expect(resp.body.gamesCount).toBe(1);
     expect(resp.body.winsCount).toBe(1);
     expect(resp2.body.items.length).toBe(3);
+  });
+
+  it('timeout', async () => {
+    const { moduleFixture } = await getInitApp();
+    const queue = moduleFixture.get<Queue>('BullQueue_game-finish');
+    await queue.obliterate({ force: true });
+    const res = await usersTestManager.createAndLoginUser();
+    const res2 = await usersTestManager.createAndLoginUser(user);
+
+    const token = res.body as { accessToken: string };
+    const token2 = res2.body as { accessToken: string };
+
+    const gameB = await gameTestManager.startGame(token.accessToken);
+    await gameTestManager.startGame(token2.accessToken);
+
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+    await gameTestManager.takeAnswer(token2.accessToken, '2');
+    await gameTestManager.takeAnswer(token2.accessToken, '2');
+
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+    await gameTestManager.takeAnswer(token.accessToken, '2');
+
+    const delayed = await queue.getDelayed();
+
+    expect(delayed.length).toBe(1);
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const game = await gameTestManager.getGameById(
+      token.accessToken,
+      gameB.body.id,
+    );
+
+    // console.log(JSON.stringify(game.body, null, 2));
+    expect(game.body.status).toBe('Finished');
+    expect(game.body.finishGameDate).not.toBeNull();
+    expect(game.body.firstPlayerProgress.answers.length).toBe(5);
+    expect(game.body.secondPlayerProgress.answers.length).toBe(5);
+
+    const delayed_2 = await queue.getDelayed();
+    expect(delayed_2.length).toBe(0);
   });
 });
