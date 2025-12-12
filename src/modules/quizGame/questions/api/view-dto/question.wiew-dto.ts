@@ -1,11 +1,23 @@
 import { Question } from '../../entity/question.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class QuestionsViewDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   body: string;
+
+  @ApiProperty()
   correctAnswers: string[];
+
+  @ApiProperty()
   published: boolean;
+
+  @ApiProperty()
   createdAt: string;
+
+  @ApiProperty()
   updatedAt: string | null;
 
   static mapToView(question: Question) {

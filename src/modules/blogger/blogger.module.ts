@@ -36,11 +36,13 @@ import { Post } from './posts/entity/post.entity';
 import { PostLike } from './post-likes/entity/post-likes.entity';
 import { Comment } from './comments/entity/comment.entity';
 import { CommentLike } from './comment-likes/entity/comment-like.entity';
+import { BindWithUserCommandHandler } from './blogs/application/commands/bind_with_user.use-case';
 
 const useCases = [
   CreateBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogUseCase,
+  BindWithUserCommandHandler,
   CreatePostFromBlogUseCase,
   UpdatePostUseCase,
   DeletePostFromBlogUseCase,

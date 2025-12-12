@@ -1,10 +1,18 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import {
   CreateBlogInputDto,
   UpdateBlogInputDto,
 } from '../api/input-dto/blogs.input-dto';
 import { Post } from '../../posts/entity/post.entity';
 import { BaseEntity } from '../../../../core/entities/baseEntity';
+import { User } from '../../../user-accounts/user/entity/user.entity';
 
 @Index(['deletedAt'])
 @Entity('blogs')
@@ -21,6 +29,13 @@ export class Blog extends BaseEntity {
 
   @Column({ type: 'boolean', nullable: false, default: false })
   isMembership: boolean;
+
+  @Column({ type: 'int', default: null })
+  userId: number | null;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
   @OneToMany(() => Post, (post) => post.blog, { onDelete: 'CASCADE' })
   posts: Post[];
@@ -39,5 +54,9 @@ export class Blog extends BaseEntity {
     this.name = dto.name;
     this.description = dto.description;
     this.websiteUrl = dto.websiteUrl;
+  }
+
+  bindWithUser(id: number) {
+    this.userId = id;
   }
 }

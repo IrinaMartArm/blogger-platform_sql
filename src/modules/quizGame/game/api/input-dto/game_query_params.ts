@@ -8,14 +8,6 @@ export enum GamesSortBy {
   PairCreatedDate = 'pairCreatedDate',
 }
 
-export enum TopPlayersSortBy {
-  AvgScores = 'avgScores',
-  SumScore = 'sumScore',
-  WinsCount = 'winsCount',
-  LossesCount = 'lossesCount',
-  DrawsCount = 'drawsCount',
-}
-
 export class GetGamesQueryParams extends BaseQueryParams {
   @IsOptional()
   @IsEnum(GamesSortBy)

@@ -141,8 +141,6 @@ export class Game {
     const fp = this.firstPlayerProgress;
     const sp = this.secondPlayerProgress!;
 
-    console.log('fp, sp', fp, sp);
-
     for (const pl of [fp, sp]) {
       while (pl.answers.length < TOTAL_QUESTIONS) {
         const missingIndex = pl.answers.length;
@@ -160,7 +158,6 @@ export class Game {
   }
 
   countPoints() {
-    console.log('countPoints');
     const first = this.firstPlayerProgress;
     const second = this.secondPlayerProgress!;
 
@@ -183,8 +180,6 @@ export class Game {
       first.resultStatus = GameResultStatus.DRAW;
       second.resultStatus = GameResultStatus.DRAW;
     }
-
-    console.log('FINISHED');
 
     this.finishTimeoutJobId = null;
     this.status = GameStatus.Finished;

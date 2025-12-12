@@ -1,6 +1,6 @@
 import { Game } from '../../entity/game.entity';
 import { AnswerEntity } from '../../../answer/entity/answer.entity';
-import { TopPlayersDto } from '../../../player/infrastructure/players.query-repository';
+import { ApiProperty } from '@nestjs/swagger';
 
 export enum GameStatus {
   PendingSecondPlayer = 'PendingSecondPlayer',
@@ -13,14 +13,56 @@ export enum AnswerStatus {
   Incorrect = 'Incorrect',
 }
 
-export class GameViewDto {
+export class Player {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
+  login: string;
+}
+
+export class PlayerProgressDto {
+  @ApiProperty({ type: () => [AnswerResultViewDto] })
+  answers: AnswerResultViewDto[];
+
+  @ApiProperty({ type: () => Player })
+  player: Player;
+
+  @ApiProperty()
+  score: number;
+}
+
+export class Questions {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  body: string;
+}
+
+export class GameViewDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty({ type: () => PlayerProgressDto })
   firstPlayerProgress: PlayerProgressDto;
+
+  @ApiProperty({ type: () => PlayerProgressDto, nullable: true })
   secondPlayerProgress: PlayerProgressDto | null;
+
+  @ApiProperty({ type: () => [Questions], nullable: true })
   questions: Questions[] | null;
+
+  @ApiProperty({ enum: GameStatus })
   status: GameStatus;
+
+  @ApiProperty()
   pairCreatedDate: string | null;
+
+  @ApiProperty()
   startGameDate: string | null;
+
+  @ApiProperty()
   finishGameDate: string | null;
 
   static mapToView(game: Game): GameViewDto {
@@ -59,25 +101,14 @@ export class GameViewDto {
   }
 }
 
-export type Player = {
-  id: string;
-  login: string;
-};
-
-export type PlayerProgressDto = {
-  answers: AnswerResultViewDto[];
-  player: Player;
-  score: number;
-};
-
-export type Questions = {
-  id: string;
-  body: string;
-};
-
 export class AnswerResultViewDto {
+  @ApiProperty()
   addedAt: string;
+
+  @ApiProperty({ enum: AnswerStatus })
   answerStatus: AnswerStatus;
+
+  @ApiProperty()
   questionId: string;
 
   static mapToView(answer: AnswerEntity) {
@@ -85,33 +116,6 @@ export class AnswerResultViewDto {
     dto.questionId = answer.questionId.toString();
     dto.answerStatus = answer.answerStatus;
     dto.addedAt = answer.addedAt.toISOString();
-    return dto;
-  }
-}
-
-export class GamesStatisticViewDto {
-  sumScore: number;
-  avgScores: number;
-  gamesCount: number;
-  winsCount: number;
-  lossesCount: number;
-  drawsCount: number;
-}
-
-export class TopPlayersViewDto extends GamesStatisticViewDto {
-  player: Player;
-
-  static mapToView(data: TopPlayersDto): TopPlayersViewDto {
-    const dto = new TopPlayersViewDto();
-
-    dto.player = { id: data.id.toString(), login: data.login };
-    dto.drawsCount = data.drawsCount;
-    dto.gamesCount = data.gamesCount;
-    dto.winsCount = data.winsCount;
-    dto.lossesCount = data.lossesCount;
-    dto.sumScore = data.sumScore;
-    dto.avgScores = Number(data.avgScores);
-
     return dto;
   }
 }

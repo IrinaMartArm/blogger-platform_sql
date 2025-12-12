@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { PlayerProgress } from '../entity/player.entity';
-import { GamesStatisticViewDto } from '../../game/api/view-dto/game.view-dto';
 import { GetTopQueryParams } from '../../game/api/input-dto/game_query_params';
 import { User } from '../../../user-accounts/user/entity/user.entity';
 import { DomainException } from '../../../../core/exceptions/domain-exception';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
+import { GamesStatisticViewDto } from '../../game/api/view-dto/game_statistic.view-dto';
 
 export type TopPlayersDto = {
   id: number;

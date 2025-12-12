@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GamesStatisticViewDto } from '../../api/view-dto/game.view-dto';
 import { PlayersQueryRepository } from '../../../player/infrastructure/players.query-repository';
+import { GamesStatisticViewDto } from '../../api/view-dto/game_statistic.view-dto';
 
 export class GetStatisticQuery {
   constructor(public readonly userId: number) {}

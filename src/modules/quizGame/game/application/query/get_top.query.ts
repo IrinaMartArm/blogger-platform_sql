@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { TopPlayersViewDto } from '../../api/view-dto/game.view-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
 import { GetTopQueryParams } from '../../api/input-dto/game_query_params';
 import { PlayersQueryRepository } from '../../../player/infrastructure/players.query-repository';
+import { TopPlayersViewDto } from '../../api/view-dto/game_statistic.view-dto';
 
 export class GetTopPlayersQuery {
   constructor(public readonly query: GetTopQueryParams) {}

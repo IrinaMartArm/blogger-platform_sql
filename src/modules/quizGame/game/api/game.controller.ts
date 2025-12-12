@@ -13,12 +13,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../../user-accounts/auth/guards/bearer/jwt-auth.guard';
 import { GetUserFromRequest } from '../../../user-accounts/decorators/param/getUserFromRequest';
 import { UserContextDto } from '../../../user-accounts/dto/user-context.dto';
-import {
-  AnswerResultViewDto,
-  GamesStatisticViewDto,
-  GameViewDto,
-  TopPlayersViewDto,
-} from './view-dto/game.view-dto';
+import { AnswerResultViewDto, GameViewDto } from './view-dto/game.view-dto';
 import { GetGameByIdQuery } from '../application/query/get_game_by_id.query';
 import { ConnectGameCommand } from '../application/commands/connect_game.use-case';
 import { GetMyCurrentGameQuery } from '../application/query/get_my_current_game_query.query';
@@ -34,6 +29,11 @@ import {
   GetTopQueryParams,
 } from './input-dto/game_query_params';
 import { GetTopPlayersQuery } from '../application/query/get_top.query';
+import {
+  GamesStatisticViewDto,
+  TopPlayersViewDto,
+} from './view-dto/game_statistic.view-dto';
+import { GameSwagger } from '../swagger/game.swagger';
 
 @Controller('pair-game-quiz')
 export class GameController {
@@ -45,6 +45,7 @@ export class GameController {
   @Get('pairs/my-current')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @GameSwagger.GetMyCurrentGame()
   async getGame(
     @GetUserFromRequest() user: UserContextDto,
   ): Promise<GameViewDto> {
@@ -56,6 +57,7 @@ export class GameController {
   @Get('users/my-statistic')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @GameSwagger.GetMyStatistic()
   async getStatistic(
     @GetUserFromRequest() user: UserContextDto,
   ): Promise<GamesStatisticViewDto> {
@@ -66,6 +68,7 @@ export class GameController {
 
   @Get('users/top')
   @HttpCode(HttpStatus.OK)
+  @GameSwagger.GetTopPlayers()
   async getTop(
     @Query() query: GetTopQueryParams,
   ): Promise<PaginatedViewDto<TopPlayersViewDto[]>> {
@@ -75,6 +78,7 @@ export class GameController {
   @Get('pairs/my')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @GameSwagger.GetMyGames()
   async getAllMyGames(
     @Query() query: GetGamesQueryParams,
     @GetUserFromRequest() user: UserContextDto,
@@ -87,6 +91,7 @@ export class GameController {
   @Get('pairs/:id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @GameSwagger.GetGameById()
   async getGameById(
     @Param('id', ObjectIdValidationPipe) id: number,
     @GetUserFromRequest() user: UserContextDto,
@@ -99,6 +104,7 @@ export class GameController {
   @Post('pairs/connection')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @GameSwagger.StartGame()
   async startGame(
     @GetUserFromRequest() user: UserContextDto,
   ): Promise<GameViewDto> {
@@ -113,6 +119,7 @@ export class GameController {
   @Post('pairs/my-current/answers')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @GameSwagger.SendAnswer()
   async sendAnswer(
     @Body() body: SendAnswerInputDto,
     @GetUserFromRequest() user: UserContextDto,
